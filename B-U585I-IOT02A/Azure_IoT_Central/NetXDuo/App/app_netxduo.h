@@ -30,10 +30,19 @@
 
 /* USER CODE BEGIN Includes */
 #include "main.h"
+
 #include "nxd_dhcp_client.h"
-#include "nxd_mqtt_client.h" 
-#include "nxd_dns.h"  
+#include "nxd_dns.h"
+#include "nxd_sntp_client.h"
+#include "nx_secure_tls_api.h"
+
 #include "nx_driver_emw3080.h"
+
+#include "nx_azure_iot_hub_client.h"
+#include "nx_azure_iot_json_reader.h"
+#include "nx_azure_iot_provisioning_client.h"
+
+#include "nxd_mqtt_client.h" 
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -43,6 +52,19 @@
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
+
+#define SNTP_SYNC_MAX        30
+#define SNTP_UPDATE_MAX      10
+#define SNTP_UPDATE_INTERVAL (NX_IP_PERIODIC_RATE / 2)
+
+/* Default time. GMT: Friday, Jan 1, 2022 12:00:00 AM. Epoch timestamp: 1640995200.  */
+#define DEFAULT_SYSTEM_TIME       1640995200
+
+/* Seconds between Unix Epoch (1/1/1970) and NTP Epoch (1/1/1999) */
+#define UNIX_TO_NTP_EPOCH_SECOND  0x83AA7E80
+
+
+
 #define MOSQUITTO_CERT_FILE         "mosquitto.cert.h"
   
   /* Threads configuration */  

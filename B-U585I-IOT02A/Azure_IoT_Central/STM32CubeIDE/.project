@@ -165,6 +165,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/STM32U5xx_HAL_Driver/Src/stm32u5xx_hal_uart_ex.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/Embedded C SDK/azure</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>Application/User/Core/app_threadx.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Core/Src/app_threadx.c</locationURI>
@@ -200,6 +205,56 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/BSP/B-U585I-IOT02A/b_u585i_iot02a.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/Embedded C SDK/azure/core</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/platform</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NetXDuo/Addons Azure IoT/nx_azure_iot.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/nx_azure_iot.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NetXDuo/Addons Azure IoT/nx_azure_iot_hub_client.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/nx_azure_iot_hub_client.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NetXDuo/Addons Azure IoT/nx_azure_iot_hub_client_properties.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/nx_azure_iot_hub_client_properties.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NetXDuo/Addons Azure IoT/nx_azure_iot_json_reader.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/nx_azure_iot_json_reader.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NetXDuo/Addons Azure IoT/nx_azure_iot_json_writer.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/nx_azure_iot_json_writer.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NetXDuo/Addons Azure IoT/nx_azure_iot_provisioning_client.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/nx_azure_iot_provisioning_client.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NetXDuo/Addons Cloud/nx_cloud.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/cloud/nx_cloud.c</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/NetXDuo/Addons DHCP Client/nxd_dhcp_client.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/dhcp/nxd_dhcp_client.c</locationURI>
@@ -218,6 +273,11 @@
 			<name>Middlewares/NetXDuo/Addons MQTT/nxd_mqtt_client.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/mqtt/nxd_mqtt_client.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/NetXDuo/Addons SNTP/nxd_sntp_client.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/sntp/nxd_sntp_client.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/NetXDuo/Crypto/nx_crypto_3des.c</name>
@@ -5060,6 +5120,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/AZURE_RTOS/App/app_azure_rtos.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/NetXDuo/App/app_azure_iot.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/NetXDuo/App/app_azure_iot.c</locationURI>
+		</link>
+		<link>
 			<name>Application/User/NetXDuo/App/app_netxduo.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/NetXDuo/App/app_netxduo.c</locationURI>
@@ -5068,6 +5133,171 @@
 			<name>Drivers/BSP/Components/mx_wifi/mx_wifi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/BSP/Components/mx_wifi/mx_wifi.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_base64.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_base64.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_context.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_context.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_hex_private.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_hex_private.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_http_header_validation_private.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_http_header_validation_private.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_http_pipeline.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_http_pipeline.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_http_policy.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_http_policy.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_http_policy_logging.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_http_policy_logging.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_http_policy_logging_private.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_http_policy_logging_private.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_http_policy_retry.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_http_policy_retry.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_http_private.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_http_private.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_http_request.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_http_request.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_http_response.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_http_response.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_json_private.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_json_private.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_json_reader.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_json_reader.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_json_token.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_json_token.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_json_writer.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_json_writer.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_log.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_log.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_precondition.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_precondition.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_span.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_span.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/core/az_span_private.h</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/core/az_span_private.h</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_common.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_common.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_hub_client.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_hub_client_c2d.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client_c2d.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_hub_client_commands.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client_commands.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_hub_client_methods.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client_methods.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_hub_client_properties.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client_properties.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_hub_client_sas.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client_sas.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_hub_client_telemetry.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client_telemetry.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_hub_client_twin.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_hub_client_twin.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_provisioning_client.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_provisioning_client.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/iot/az_iot_provisioning_client_sas.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/iot/az_iot_provisioning_client_sas.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/platform/az_nohttp.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/platform/az_nohttp.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/Embedded C SDK/azure/platform/az_noplatform.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/src/azure/platform/az_noplatform.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/Interfaces/Network/wifi/mx_wifi_azure_rtos.c</name>

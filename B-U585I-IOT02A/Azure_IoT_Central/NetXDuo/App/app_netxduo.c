@@ -31,20 +31,36 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 extern RNG_HandleTypeDef hrng;
+extern VOID azure_iot_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG *unix_time));
 
 TX_THREAD AppMainThread;
-TX_THREAD AppMQTTClientThread;
+TX_THREAD AppAzureIoTClientThread;
 
 TX_SEMAPHORE Semaphore;
 
-NX_PACKET_POOL  AppPool;
-NX_IP           IpInstance;
-NX_DHCP         DhcpClient;
-NXD_MQTT_CLIENT MqttClient;
-static NX_DNS   DnsClient;
+static NX_PACKET_POOL AppPool;
+static NX_IP          IpInstance;
+static NX_DNS         DnsClient;
+static NX_DHCP        DhcpClient;
+static NX_SNTP_CLIENT SntpClient;
+
+/* System clock time for UTC.  */
+static ULONG    unix_time_base;
+
+/* Declar SNTP servers */
+static const CHAR *sntp_servers[] =
+{
+    "0.pool.ntp.org",
+    "1.pool.ntp.org",
+    "2.pool.ntp.org",
+    "3.pool.ntp.org",
+};
+static UINT sntp_server_index;
 
 ULONG   IpAddress;
 ULONG   NetMask;
+ULONG   GatewayAddress;
+
 
 ULONG mqtt_client_stack[MQTT_CLIENT_STACK_SIZE];
 
@@ -81,7 +97,7 @@ UCHAR tls_packet_buffer[4000];
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
 static VOID App_Main_Thread_Entry(ULONG thread_input);
-static VOID App_MQTT_Client_Thread_Entry(ULONG thread_input);
+static VOID App_Azure_IoT_Client_Thread_Entry(ULONG thread_input);
 static VOID ip_address_change_notify_callback(NX_IP *ip_instance, VOID *ptr);
 /* USER CODE END PFP */
 /**
@@ -94,15 +110,18 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   UINT ret = NX_SUCCESS;
   TX_BYTE_POOL *byte_pool = (TX_BYTE_POOL*)memory_ptr;
 
-   /* USER CODE BEGIN App_NetXDuo_MEM_POOL */
+/* USER CODE BEGIN App_NetXDuo_MEM_POOL */
 
-  /* USER CODE END App_NetXDuo_MEM_POOL */
+/* USER CODE END App_NetXDuo_MEM_POOL */
 
-  /* USER CODE BEGIN MX_NetXDuo_Init */
+/* USER CODE BEGIN MX_NetXDuo_Init */
 #if (USE_MEMORY_POOL_ALLOCATION == 1)  
-  printf("Nx_MQTT_Client application started..\n");
+  printf("Azure_IoT_Central application started..\n");
   
   CHAR *pointer;
+
+  /* Initialize the NetX system.  */
+  nx_system_initialize();
   
   /* Allocate the memory for packet_pool.  */
   if (tx_byte_allocate(byte_pool, (VOID **) &pointer,  NX_PACKET_POOL_SIZE, TX_NO_WAIT) != TX_SUCCESS)
@@ -194,14 +213,14 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
     return NX_NOT_ENABLED;
   }
   
-  /* Allocate the memory for MQTT client thread   */
+  /* Allocate the memory for Azure IoT client thread   */
   if (tx_byte_allocate(byte_pool, (VOID **) &pointer, THREAD_MEMORY_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
     return TX_POOL_ERROR;
   }
   
-  /* create the MQTT client thread */
-  ret = tx_thread_create(&AppMQTTClientThread, "App MQTT Thread", App_MQTT_Client_Thread_Entry, 0, pointer, THREAD_MEMORY_SIZE,
+  /* create the Azure IoT client thread */
+  ret = tx_thread_create(&AppAzureIoTClientThread, "App Azure IoT Thread", App_Azure_IoT_Client_Thread_Entry, 0, pointer, THREAD_MEMORY_SIZE,
                          DEFAULT_PRIORITY, DEFAULT_PRIORITY, TX_NO_TIME_SLICE, TX_DONT_START);
   
   if (ret != TX_SUCCESS)
@@ -246,6 +265,7 @@ static VOID App_Main_Thread_Entry(ULONG thread_input)
   }
   
   /* start DHCP client */
+  // TODO: dhcp_wait()
   ret = nx_dhcp_start(&DhcpClient);
   if (ret != NX_SUCCESS)
   {
@@ -264,11 +284,19 @@ static VOID App_Main_Thread_Entry(ULONG thread_input)
   {
     Error_Handler();
   }
+
+  ret = nx_ip_gateway_address_get(&IpInstance, &GatewayAddress);
+
+  if (ret != TX_SUCCESS)
+  {
+    Error_Handler();
+  }
   
   PRINT_IP_ADDRESS(IpAddress);
+  PRINT_IP_ADDRESS(GatewayAddress);
   
-  /* start the MQTT client thread */
-  tx_thread_resume(&AppMQTTClientThread);
+  /* start the Azure IoT client thread */
+  tx_thread_resume(&AppAzureIoTClientThread);
   
   /* this thread is not needed any more, we relinquish it */
   tx_thread_relinquish();
@@ -316,6 +344,197 @@ UINT dns_create(NX_DNS *dns_ptr)
   
   return ret;
 }
+
+/**
+ * @brief  Sync up the local time.
+ * @param sntp_server_address
+ * @retval ret
+ */
+UINT sntp_time_sync_internal(ULONG sntp_server_address)
+{
+  UINT ret;
+  UINT server_status;
+  UINT i;
+
+  /* Create the SNTP Client to run in broadcast mode.. */
+  ret = nx_sntp_client_create(
+      &SntpClient, &IpInstance, 0, &AppPool, NX_NULL, NX_NULL, NX_NULL /* no random_number_generator callback */);
+
+  /* Check ret.  */
+  if (ret)
+  {
+    return (ret);
+  }
+
+  /* Use the IPv4 service to initialize the Client and set the IPv4 SNTP server. */
+  ret = nx_sntp_client_initialize_unicast(&SntpClient, sntp_server_address);
+
+  /* Check ret.  */
+  if (ret)
+  {
+    nx_sntp_client_delete(&SntpClient);
+    return (ret);
+  }
+
+  /* Set local time to 0 */
+  ret = nx_sntp_client_set_local_time(&SntpClient, 0, 0);
+
+  /* Check ret. */
+  if (ret)
+  {
+    nx_sntp_client_delete(&SntpClient);
+    return (ret);
+  }
+
+  /* Run Unicast client */
+  ret = nx_sntp_client_run_unicast(&SntpClient);
+
+  /* Check ret.  */
+  if (ret)
+  {
+    nx_sntp_client_stop(&SntpClient);
+    nx_sntp_client_delete(&SntpClient);
+    return (ret);
+  }
+
+  /* Wait till updates are received */
+  for (i = 0; i < SNTP_UPDATE_MAX; i++)
+  {
+
+    /* First verify we have a valid SNTP service running. */
+    ret = nx_sntp_client_receiving_updates(&SntpClient, &server_status);
+
+    /* Check ret.  */
+    if ((ret == NX_SUCCESS) && (server_status == NX_TRUE))
+    {
+
+      /* Server ret is good. Now get the Client local time. */
+      ULONG sntp_seconds, sntp_fraction;
+      ULONG system_time_in_second;
+
+      /* Get the local time.  */
+      ret = nx_sntp_client_get_local_time(&SntpClient, &sntp_seconds, &sntp_fraction, NX_NULL);
+
+      /* Check ret.  */
+      if (ret != NX_SUCCESS)
+      {
+        continue;
+      }
+
+      /* Get the system time in second.  */
+      system_time_in_second = tx_time_get() / TX_TIMER_TICKS_PER_SECOND;
+
+      /* Convert to Unix epoch and minus the current system time.  */
+      unix_time_base = (sntp_seconds - (system_time_in_second + UNIX_TO_NTP_EPOCH_SECOND));
+
+      /* Time sync successfully.  */
+
+      /* Stop and delete SNTP.  */
+      nx_sntp_client_stop(&SntpClient);
+      nx_sntp_client_delete(&SntpClient);
+
+      return (NX_SUCCESS);
+    }
+
+    /* Sleep.  */
+    tx_thread_sleep(SNTP_UPDATE_INTERVAL);
+  }
+
+  /* Time sync failed.  */
+
+  /* Stop and delete SNTP.  */
+  nx_sntp_client_stop(&SntpClient);
+  nx_sntp_client_delete(&SntpClient);
+
+  /* Return success.  */
+  return (NX_NOT_SUCCESSFUL);
+}
+
+/**
+* @brief  Sync up the local time.
+* @param void
+* @retval ret
+*/
+UINT sntp_time_sync()
+{
+  UINT  ret;
+  ULONG gateway_address;
+  ULONG sntp_server_address[3];
+  UINT  sntp_server_address_size = sizeof(sntp_server_address);
+
+  /* Retrieve NTP server address.  */
+  ret = nx_dhcp_interface_user_option_retrieve(
+      &DhcpClient, 0, NX_DHCP_OPTION_NTP_SVR, (UCHAR*)(sntp_server_address), &sntp_server_address_size);
+
+  /* Check ret.  */
+  if (ret == NX_SUCCESS)
+  {
+    for (UINT i = 0; (i * 4) < sntp_server_address_size; i++)
+    {
+      PRINT_IP_ADDRESS(sntp_server_address[i]);
+
+      /* Start SNTP to sync the local time.  */
+      ret = sntp_time_sync_internal(sntp_server_address[i]);
+
+      /* Check ret.  */
+      if (ret == NX_SUCCESS)
+      {
+        return (NX_SUCCESS);
+      }
+    }
+  }
+
+  /* Sync time by NTP server array.  */
+  for (UINT i = 0; i < SNTP_SYNC_MAX; i++)
+  {
+    printf("SNTP Time Sync...%s\r\n", sntp_servers[sntp_server_index]);
+
+    /* Make sure the network is still valid.  */
+    while (nx_ip_gateway_address_get(&IpInstance, &GatewayAddress))
+    {
+      tx_thread_sleep(NX_IP_PERIODIC_RATE);
+    }
+
+    /* Look up SNTP Server address. */
+    ret = nx_dns_host_by_name_get(
+        &DnsClient, (UCHAR*)sntp_servers[sntp_server_index], &sntp_server_address[0], 5 * NX_IP_PERIODIC_RATE);
+
+    /* Check ret.  */
+    if (ret == NX_SUCCESS)
+    {
+
+      /* Start SNTP to sync the local time.  */
+      ret = sntp_time_sync_internal(sntp_server_address[0]);
+
+      /* Check ret.  */
+      if (ret == NX_SUCCESS)
+      {
+        return (NX_SUCCESS);
+      }
+    }
+
+    /* Switch SNTP server every time.  */
+    sntp_server_index = (sntp_server_index + 1) % (sizeof(sntp_servers) / sizeof(sntp_servers[0]));
+  }
+
+  return (NX_NOT_SUCCESSFUL);
+}
+
+/**
+* @brief  Unix Time Get Function.
+* @param unix_time
+* @retval ret
+*/
+UINT unix_time_get(ULONG *unix_time)
+{
+  UINT ret = NX_SUCCESS;
+
+  /* Return number of seconds since Unix Epoch (1/1/1970 00:00:00).  */
+  *unix_time =  unix_time_base + (tx_time_get() / TX_TIMER_TICKS_PER_SECOND);
+
+  return ret;
+}
+
 
 /**
 * @brief  message generation Function.
@@ -400,18 +619,12 @@ UINT tls_setup_callback(NXD_MQTT_CLIENT *client_pt,
 * @param thread_input: ULONG user argument used by the thread entry
 * @retval none
 */
-static VOID App_MQTT_Client_Thread_Entry(ULONG thread_input)
+static VOID App_Azure_IoT_Client_Thread_Entry(ULONG thread_input)
 {
   UINT ret = NX_SUCCESS;
-  NXD_ADDRESS mqtt_server_ip;
-  ULONG events;
-  UINT aRandom32bit;
-  UINT topic_length, message_length;
-  UINT remaining_msg = NB_MESSAGE;
-  UINT message_count = 0;
-  UINT unlimited_publish = NX_FALSE;
+  UINT unix_time;
   
-  mqtt_server_ip.nxd_ip_version = 4;
+  // mqtt_server_ip.nxd_ip_version = 4;
   
   /* Create a DNS client */
   ret = dns_create(&DnsClient);
@@ -420,132 +633,36 @@ static VOID App_MQTT_Client_Thread_Entry(ULONG thread_input)
   {
     Error_Handler();
   }
-  
-  /* Look up MQTT Server address. */
-  ret = nx_dns_host_by_name_get(&DnsClient, (UCHAR *)MQTT_BROKER_NAME, 
-                                &mqtt_server_ip.nxd_ip_address.v4, DEFAULT_TIMEOUT);
-  
-  /* Check status.  */
-  if (ret != NX_SUCCESS)
-  {
-    Error_Handler();
+
+  /* Sync up time by SNTP at start up.  */
+  ret = sntp_time_sync();
+
+  if (ret != NX_SUCCESS) {
+    printf("SNTP Time Sync failed.\r\n");
+    printf("Set Time to default value: %u.", DEFAULT_SYSTEM_TIME);
+    unix_time_base = DEFAULT_SYSTEM_TIME;
   }
-  
-  /* Create MQTT client instance. */
-  ret = nxd_mqtt_client_create(&MqttClient, "my_client", CLIENT_ID_STRING, STRLEN(CLIENT_ID_STRING),
-                               &IpInstance, &AppPool, (VOID*)mqtt_client_stack, MQTT_CLIENT_STACK_SIZE, 
-                               MQTT_THREAD_PRIORTY, NX_NULL, 0);
-  
-  if (ret != NX_SUCCESS)
+  else
   {
-    Error_Handler();
-  }  
-  
-  /* Register the disconnect notification function. */
-  nxd_mqtt_client_disconnect_notify_set(&MqttClient, my_disconnect_func);
-  
-  /* Set the receive notify function. */
-  nxd_mqtt_client_receive_notify_set(&MqttClient, my_notify_func);
-  
-  /* Create an MQTT flag */
-  ret = tx_event_flags_create(&mqtt_app_flag, "my app event");
-  if (ret != TX_SUCCESS)
-  {
-    Error_Handler();
-  }   
-  
-  /* Start a secure connection to the server. */
-  ret = nxd_mqtt_client_secure_connect(&MqttClient, &mqtt_server_ip, MQTT_PORT, tls_setup_callback, 
-                                       MQTT_KEEP_ALIVE_TIMER, CLEAN_SESSION, NX_WAIT_FOREVER);
-  
-  if (ret != NX_SUCCESS)
-  {
-    printf("\nMQTT client failed to connect to broker < %s >.\n",MQTT_BROKER_NAME);
-    Error_Handler();
+    printf("SNTP Time Sync successfully.\r\n");
   }
-  else 
-  {
-    printf("\nMQTT client connected to broker < %s > at PORT %d :\n",MQTT_BROKER_NAME, MQTT_PORT);
-  }
-  
-  /* Subscribe to the topic with QoS level 1. */
-  ret = nxd_mqtt_client_subscribe(&MqttClient, TOPIC_NAME, STRLEN(TOPIC_NAME), QOS1);
-  
-  if (ret != NX_SUCCESS)
-  {
-    Error_Handler();
-  }
-  
-  if (NB_MESSAGE ==0)
-    unlimited_publish = NX_TRUE;
-  
-  while(unlimited_publish || remaining_msg)
-  {
-    aRandom32bit = message_generate();
-    
-    snprintf(message, STRLEN(message), "%u", aRandom32bit);
-    
-    /* Publish a message with QoS Level 1. */
-    ret = nxd_mqtt_client_publish(&MqttClient, TOPIC_NAME, STRLEN(TOPIC_NAME),
-                                  (CHAR*)message, STRLEN(message), NX_TRUE, QOS1, NX_WAIT_FOREVER);
-    if (ret != NX_SUCCESS)
-    {
-      Error_Handler();
-    }
-    
-    /* wait for the broker to publish the message. */
-    tx_event_flags_get(&mqtt_app_flag, DEMO_ALL_EVENTS, TX_OR_CLEAR, &events, TX_WAIT_FOREVER);
-    
-    /* check event received */
-    if(events & DEMO_MESSAGE_EVENT)
-    {
-      /* get message from the broker */
-      ret = nxd_mqtt_client_message_get(&MqttClient, topic_buffer, sizeof(topic_buffer), &topic_length, 
-                                        message_buffer, sizeof(message_buffer), &message_length);
-      if(ret == NXD_MQTT_SUCCESS)
-      {
-        printf("Message %d received: TOPIC = %s, MESSAGE = %s\n", message_count + 1, topic_buffer, message_buffer);
-      }
-      else
-      {
-        Error_Handler();
-      }
-    }
-    
-    /* Decrement message numbre */
-    remaining_msg -- ;
-    message_count ++ ;
-    
-    /* Delay 1s between each pub */
-    tx_thread_sleep(100);
-    
-  }
-  
-  /* Now unsubscribe the topic. */
-  ret = nxd_mqtt_client_unsubscribe(&MqttClient, TOPIC_NAME, STRLEN(TOPIC_NAME));
-  
-  if (ret != NX_SUCCESS)
-  {
-    Error_Handler();
-  }
-  
-  /* Disconnect from the broker. */
-  ret = nxd_mqtt_client_disconnect(&MqttClient);
-  
-  if (ret != NX_SUCCESS)
-  {
-    Error_Handler();
-  }
-  
-  /* Delete the client instance, release all the resources. */
-  ret = nxd_mqtt_client_delete(&MqttClient); 
-  
-  if (ret != NX_SUCCESS)
-  {
-    Error_Handler();
-  }
-  
-  /* test OK -> success Handler */
-  Success_Handler();
+
+  unix_time_get((ULONG *)&unix_time);
+  srand(unix_time);
+
+  // TODO
+  // nx_azure_iot_log_init(log_callback);
+
+  // ret = nx_azure_iot_create(&AzureIoTClient, (UCHAR *)"Azure IoT", &IpInstance, &AppPool, &DnsClient
+  //                           azure_iot_thread_stack, sizeof(azure_iot_thread_stack),
+  //                           AZURE_IOT_THREAD_PRIORITY, &unix_time_get);
+
+  // /* Check status.  */
+  // if (ret != NX_SUCCESS)
+  // {
+  //   Error_Handler();
+  // }
+
+  azure_iot_entry(&IpInstance, &AppPool, &DnsClient, unix_time_get);
 }
 /* USER CODE END 1 */

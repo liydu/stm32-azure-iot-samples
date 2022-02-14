@@ -49,6 +49,9 @@
 #ifndef NX_USER_H
 #define NX_USER_H
 
+/* Azure IoT Security Module */
+#define NX_AZURE_DISABLE_IOT_SECURITY_MODULE
+
 /* Define various build options for the NetX Duo port. The application should
    either make changes here by commenting or un-commenting the conditional
    compilation defined OR supply the defines though the compiler's equivalent
@@ -138,9 +141,9 @@
    socket events, such as TCP connection and disconnect completion.
    These extended notify functions are mainly used by the BSD wrapper.
    The default is this feature is disabled.  */
-/*
+
 #define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
-*/
+
 
 /* Defined, NetX Duo is built with NAT process. By default this option is not
    defined. */
@@ -908,7 +911,7 @@
 */
 
 /* If defined, this enables the DHCP Client to save its current DHCP Client
-   license ‘state’ including time remaining on the lease, and restore this
+   license ï¿½stateï¿½ including time remaining on the lease, and restore this
    state between DHCP Client application reboots.
    The default value is disabled. */
 /*
@@ -1202,13 +1205,13 @@
 #define NX_DHCPV6_NUM_TIME_SERVERS              1
 */
 
-/* Size of the buffer in the Client record to hold the client’s network domain
+/* Size of the buffer in the Client record to hold the clientï¿½s network domain
    name. The default value is 32. */
 /*
 #define NX_DHCPV6_DOMAIN_NAME_BUFFER_SIZE       32
 */
 
-/* Size of the buffer in the Client record to hold the Client’s time zone.
+/* Size of the buffer in the Client record to hold the Clientï¿½s time zone.
    The default value is 16. */
 /*
 #define NX_DHCPV6_TIME_ZONE_BUFFER_SIZE         16
@@ -1231,14 +1234,14 @@
 */
 
 /* This defines the DHCPv6 Server thread priority. This should be lower than the
-   DHCPv6 Server’s IP thread task priority. The default value is 2. */
+   DHCPv6 Serverï¿½s IP thread task priority. The default value is 2. */
 /*
 #define NX_DHCPV6_SERVER_THREAD_PRIORITY        2
 */
 
 /* Timer interval in seconds when the lease timer entry function is called by
    the ThreadX scheduler. The entry function sets a flag for the DHCPv6 Server
-   to increment all Clients’ accrued time on their lease by the timer interval.
+   to increment all Clientsï¿½ accrued time on their lease by the timer interval.
    By default, this value is 60. */
 /*
 #define NX_DHCPV6_IP_LEASE_TIMER_INTERVAL       (60)
@@ -1278,7 +1281,7 @@
 
 /* This defines the preference option value between 0 and 255, where the higher
    the value the higher the preference, in the DHCPv6 option of the same name.
-   This tells the Client what preference to place on this Server’s offer where
+   This tells the Client what preference to place on this Serverï¿½s offer where
    multiple DHCPv6 Servers are available to assign IP addresses.
    A value of 255 instructs the Client to choose this server. A value of zero
    indicates the Client is free to choose. The default value is zero. */
@@ -1327,14 +1330,14 @@
 #define NX_DHCPV6_STATUS_MESSAGE_MAX           	100
 */
 
-/* Defines the size of the Server’s IP lease table (e.g. the max number of IPv6
+/* Defines the size of the Serverï¿½s IP lease table (e.g. the max number of IPv6
    address available to lease that can be stored).
    By default, this value is 100. */
 /*
 #define NX_DHCPV6_MAX_LEASES                   	100
 */
 
-/* Defines the size of the Server’s Client record table (e.g. max number of
+/* Defines the size of the Serverï¿½s Client record table (e.g. max number of
    Clients that can be stored). This value should be less than or equal to the
    value NX_DHCPV6_MAX_LEASES.By default, this value is 120. */
 /*
@@ -1463,7 +1466,7 @@
 */
 
 /* If defined and the Client IPv4 gateway address is non zero, the DNS Client
-   sets the IPv4 gateway as the Client’s primary DNS server. The default value
+   sets the IPv4 gateway as the Clientï¿½s primary DNS server. The default value
    is disabled. */
 /*
 #define NX_DNS_IP_GATEWAY_AND_DNS_SERVER
@@ -1519,7 +1522,7 @@
 /* Defined, application must use TLS to connect to MQTT broker. This feature
    requires NX_SECURE_ENABLE defined. By default, this symbol is not
    defined. */
-#define NXD_MQTT_REQUIRE_TLS
+/* #define NXD_MQTT_REQUIRE_TLS */
 
 /* Defines the MQTT timer rate, in ThreadX timer ticks. This timer is used to
    keep track of the time since last MQTT control message was sent, and sends
@@ -1548,9 +1551,7 @@
 */
 
 /* Defined, enable MQTT over cloud option. */
-/*
 #define NXD_MQTT_CLOUD_ENABLE
-*/
 
 /* Define memcpy function used internal. */
 /*
@@ -2061,7 +2062,7 @@
 #define NX_PPP_SERIAL_BUFFER_SIZE       2960
 */
 
-/* Specifies the size of “name” strings used in authentication.
+/* Specifies the size of ï¿½nameï¿½ strings used in authentication.
    The default value is set to 32bytes,
    but can be redefined prior to inclusion of *nx_ppp.h.*/
 /*
@@ -2075,14 +2076,14 @@
 #define NX_PPP_PASSWORD_SIZE       32
 */
 
-/* Specifies the size of “value” strings used in CHAP authentication.
+/* Specifies the size of ï¿½valueï¿½ strings used in CHAP authentication.
    The default value is set to 32bytes,
    but can be redefined prior to inclusion of nx_ppp.h.*/
 /*
 #define NX_PPP_VALUE_SIZE       32
 */
 
-/* Specifies the size of “hashed value” strings used in CHAP authentication.
+/* Specifies the size of ï¿½hashed valueï¿½ strings used in CHAP authentication.
    The default value is set to 16 bytes, but can be redefined prior
    to inclusion of nx_ppp.h.*/
 /*
@@ -2196,7 +2197,7 @@
 */
 
 /* This option sets the UDP socket name. The NetX Duo SNTP Client UDP socket
-   name default is “SNTP Client socket”. */
+   name default is ï¿½SNTP Client socketï¿½. */
 /*
 #define NX_SNTP_CLIENT_UDP_SOCKET_NAME          "SNTP Client socket"
 */
@@ -2247,9 +2248,7 @@
 
 /* The lowest level (highest numeric stratum level) SNTP Server stratum the
    Client will accept. The NetX Duo SNTP Client default is 2. */
-/*
-#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM       2
-*/
+#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM       3
 
 /* The minimum time adjustment in milliseconds the Client will make to its
    local clock time. Time adjustments below this will be ignored. The NetX
