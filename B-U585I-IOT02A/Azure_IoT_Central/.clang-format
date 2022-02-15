@@ -9,4 +9,3 @@ IndentCaseLabels: true
 PointerAlignment: Left
 BraceWrapping:
   AfterCaseLabel: true
-IndentWidth: 2

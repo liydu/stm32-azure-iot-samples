@@ -25,31 +25,30 @@
 /* USER CODE BEGIN Includes */
 #include "app_azure_rtos.h"
 #include "nx_ip.h"
-#include  MOSQUITTO_CERT_FILE
 /* USER CODE END Includes */
+
+extern VOID azure_iot_entry(
+    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time));
+
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-extern RNG_HandleTypeDef hrng;
-extern VOID azure_iot_entry(NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG *unix_time));
-
 TX_THREAD AppMainThread;
-TX_THREAD AppAzureIoTClientThread;
+TX_THREAD AppMQTTClientThread;
 
 TX_SEMAPHORE Semaphore;
 
 static NX_PACKET_POOL AppPool;
 static NX_IP          IpInstance;
-static NX_DNS         DnsClient;
 static NX_DHCP        DhcpClient;
+static NX_DNS         DnsClient;
 static NX_SNTP_CLIENT SntpClient;
 
 /* System clock time for UTC.  */
-static ULONG    unix_time_base;
+static ULONG unix_time_base;
 
-/* Declar SNTP servers */
-static const CHAR *sntp_servers[] =
-{
+/* Declare SNTP servers */
+static const CHAR* sntp_servers[] = {
     "0.pool.ntp.org",
     "1.pool.ntp.org",
     "2.pool.ntp.org",
@@ -61,22 +60,6 @@ ULONG   IpAddress;
 ULONG   NetMask;
 ULONG   GatewayAddress;
 
-
-ULONG mqtt_client_stack[MQTT_CLIENT_STACK_SIZE];
-
-TX_EVENT_FLAGS_GROUP mqtt_app_flag;
-
-/* Declare buffers to hold message and topic. */
-static char message[NXD_MQTT_MAX_MESSAGE_LENGTH];
-static UCHAR message_buffer[NXD_MQTT_MAX_MESSAGE_LENGTH];
-static UCHAR topic_buffer[NXD_MQTT_MAX_TOPIC_NAME_LENGTH];
-
-/* TLS buffers and certificate containers. */
-extern const NX_SECURE_TLS_CRYPTO nx_crypto_tls_ciphers;
-/* calculated with nx_secure_tls_metadata_size_calculate */
-static CHAR crypto_metadata_client[11600];
-/* Define the TLS packet reassembly buffer. */
-UCHAR tls_packet_buffer[4000];
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -97,7 +80,7 @@ UCHAR tls_packet_buffer[4000];
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
 static VOID App_Main_Thread_Entry(ULONG thread_input);
-static VOID App_Azure_IoT_Client_Thread_Entry(ULONG thread_input);
+static VOID App_MQTT_Client_Thread_Entry(ULONG thread_input);
 static VOID ip_address_change_notify_callback(NX_IP *ip_instance, VOID *ptr);
 /* USER CODE END PFP */
 /**
@@ -110,20 +93,20 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   UINT ret = NX_SUCCESS;
   TX_BYTE_POOL *byte_pool = (TX_BYTE_POOL*)memory_ptr;
 
-/* USER CODE BEGIN App_NetXDuo_MEM_POOL */
+   /* USER CODE BEGIN App_NetXDuo_MEM_POOL */
 
-/* USER CODE END App_NetXDuo_MEM_POOL */
+  /* USER CODE END App_NetXDuo_MEM_POOL */
 
-/* USER CODE BEGIN MX_NetXDuo_Init */
+  /* USER CODE BEGIN MX_NetXDuo_Init */
 #if (USE_MEMORY_POOL_ALLOCATION == 1)  
-  printf("Azure_IoT_Central application started..\n");
+  printf("Nx_MQTT_Client application started..\n");
   
   CHAR *pointer;
 
-  /* Initialize the NetX system.  */
+  /* Initialize the NetX system. */
   nx_system_initialize();
   
-  /* Allocate the memory for packet_pool.  */
+  /* Allocate the memory for packet_pool. */
   if (tx_byte_allocate(byte_pool, (VOID **) &pointer,  NX_PACKET_POOL_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
     return TX_POOL_ERROR;
@@ -134,21 +117,24 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   
   if (ret != NX_SUCCESS)
   {
+    printf("ERROR: nx_packet_pool_create (0x%08x)\r\n", ret);
     return NX_NOT_ENABLED;
   }
   
   /* Allocate the memory for Ip_Instance */
-  if (tx_byte_allocate(byte_pool, (VOID **) &pointer, 2 * DEFAULT_MEMORY_SIZE, TX_NO_WAIT) != TX_SUCCESS)
+  if (tx_byte_allocate(byte_pool, (VOID **) &pointer, 2 * DEFAULT_IP_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
     return TX_POOL_ERROR;
   }
   
   /* Create the main NX_IP instance */
   ret = nx_ip_create(&IpInstance, "Main Ip instance", NULL_ADDRESS, NULL_ADDRESS, &AppPool, nx_driver_emw3080_entry,
-                     pointer, 2 * DEFAULT_MEMORY_SIZE, DEFAULT_MAIN_PRIORITY);
+                     pointer, 2 * DEFAULT_IP_STACK_SIZE, DEFAULT_IP_STACK_PRIORITY);
   
   if (ret != NX_SUCCESS)
   {
+    nx_packet_pool_delete(&AppPool);
+    printf("ERROR: nx_ip_create (0x%08x)\r\n", ret);
     return NX_NOT_ENABLED;
   }
   
@@ -171,6 +157,9 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   
   if (ret != NX_SUCCESS)
   {
+    nx_ip_delete(&IpInstance);
+    nx_packet_pool_delete(&AppPool);
+    printf("ERROR: nx_arp_enable (0x%08x)\r\n", ret);
     return NX_NOT_ENABLED;
   }
   
@@ -179,6 +168,9 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   
   if (ret != NX_SUCCESS)
   {
+    nx_ip_delete(&IpInstance);
+    nx_packet_pool_delete(&AppPool);
+    printf("ERROR: nx_icmp_enable (0x%08x)\r\n", ret);
     return NX_NOT_ENABLED;
   }
   
@@ -187,6 +179,9 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   
   if (ret != NX_SUCCESS)
   {
+    nx_ip_delete(&IpInstance);
+    nx_packet_pool_delete(&AppPool);
+    printf("ERROR: nx_udp_enable (0x%08x)\r\n", ret);
     return NX_NOT_ENABLED;
   }
   
@@ -195,6 +190,9 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   
   if (ret != NX_SUCCESS)
   {
+    nx_ip_delete(&IpInstance);
+    nx_packet_pool_delete(&AppPool);
+    printf("ERROR: nx_tcp_enable (0x%08x)\r\n", ret);
     return NX_NOT_ENABLED;
   }
   
@@ -203,24 +201,27 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
   {
     return TX_POOL_ERROR;
   }
+
+  /* Initialize TLS. */
+  nx_secure_tls_initialize();
   
   /* Create the main thread */
   ret = tx_thread_create(&AppMainThread, "App Main thread", App_Main_Thread_Entry, 0, pointer, THREAD_MEMORY_SIZE,
-                         DEFAULT_MAIN_PRIORITY, DEFAULT_MAIN_PRIORITY, TX_NO_TIME_SLICE, TX_AUTO_START);
+                         DEFAULT_IP_STACK_PRIORITY, DEFAULT_IP_STACK_PRIORITY, TX_NO_TIME_SLICE, TX_AUTO_START);
   
   if (ret != TX_SUCCESS)
   {
     return NX_NOT_ENABLED;
   }
   
-  /* Allocate the memory for Azure IoT client thread   */
+  /* Allocate the memory for MQTT client thread   */
   if (tx_byte_allocate(byte_pool, (VOID **) &pointer, THREAD_MEMORY_SIZE, TX_NO_WAIT) != TX_SUCCESS)
   {
     return TX_POOL_ERROR;
   }
   
-  /* create the Azure IoT client thread */
-  ret = tx_thread_create(&AppAzureIoTClientThread, "App Azure IoT Thread", App_Azure_IoT_Client_Thread_Entry, 0, pointer, THREAD_MEMORY_SIZE,
+  /* create the MQTT client thread */
+  ret = tx_thread_create(&AppMQTTClientThread, "App MQTT Thread", App_MQTT_Client_Thread_Entry, 0, pointer, THREAD_MEMORY_SIZE,
                          DEFAULT_PRIORITY, DEFAULT_PRIORITY, TX_NO_TIME_SLICE, TX_DONT_START);
   
   if (ret != TX_SUCCESS)
@@ -265,7 +266,6 @@ static VOID App_Main_Thread_Entry(ULONG thread_input)
   }
   
   /* start DHCP client */
-  // TODO: dhcp_wait()
   ret = nx_dhcp_start(&DhcpClient);
   if (ret != NX_SUCCESS)
   {
@@ -284,40 +284,16 @@ static VOID App_Main_Thread_Entry(ULONG thread_input)
   {
     Error_Handler();
   }
-
-  ret = nx_ip_gateway_address_get(&IpInstance, &GatewayAddress);
-
-  if (ret != TX_SUCCESS)
-  {
-    Error_Handler();
-  }
   
   PRINT_IP_ADDRESS(IpAddress);
-  PRINT_IP_ADDRESS(GatewayAddress);
   
-  /* start the Azure IoT client thread */
-  tx_thread_resume(&AppAzureIoTClientThread);
+  /* start the MQTT client thread */
+  tx_thread_resume(&AppMQTTClientThread);
   
   /* this thread is not needed any more, we relinquish it */
   tx_thread_relinquish();
   
   return;  
-}
-
-/* Declare the disconnect notify function. */
-static VOID my_disconnect_func(NXD_MQTT_CLIENT *client_ptr)
-{
-  NX_PARAMETER_NOT_USED(client_ptr);
-  printf("client disconnected from broker < %s >.\n", MQTT_BROKER_NAME);
-}
-
-/* Declare the notify function. */
-static VOID my_notify_func(NXD_MQTT_CLIENT* client_ptr, UINT number_of_messages)
-{
-  NX_PARAMETER_NOT_USED(client_ptr);
-  NX_PARAMETER_NOT_USED(number_of_messages);
-  tx_event_flags_set(&mqtt_app_flag, DEMO_MESSAGE_EVENT, TX_OR);
-  return;
 }
 
 /**
@@ -451,10 +427,10 @@ UINT sntp_time_sync_internal(ULONG sntp_server_address)
 }
 
 /**
-* @brief  Sync up the local time.
-* @param void
-* @retval ret
-*/
+ * @brief  Sync up the local time.
+ * @param void
+ * @retval ret
+ */
 UINT sntp_time_sync()
 {
   UINT  ret;
@@ -521,96 +497,17 @@ UINT sntp_time_sync()
 }
 
 /**
-* @brief  Unix Time Get Function.
-* @param unix_time
-* @retval ret
-*/
-UINT unix_time_get(ULONG *unix_time)
+ * @brief  Unix Time Get Function.
+ * @param unix_time
+ * @retval ret
+ */
+UINT unix_time_get(ULONG* unix_time)
 {
   UINT ret = NX_SUCCESS;
 
   /* Return number of seconds since Unix Epoch (1/1/1970 00:00:00).  */
-  *unix_time =  unix_time_base + (tx_time_get() / TX_TIMER_TICKS_PER_SECOND);
+  *unix_time = unix_time_base + (tx_time_get() / TX_TIMER_TICKS_PER_SECOND);
 
-  return ret;
-}
-
-
-/**
-* @brief  message generation Function.
-* @param  RandomNbr
-* @retval none
-*/
-UINT message_generate()
-{
-  uint32_t RandomNbr = 0;
-  
-  HAL_RNG_Init(&hrng);
-  
-  /* generate a random number */
-  if(HAL_RNG_GenerateRandomNumber(&hrng, &RandomNbr) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  
-  return RandomNbr %= 50;
-}
-
-/* Callback to setup TLS parameters for secure MQTT connexion. */
-UINT tls_setup_callback(NXD_MQTT_CLIENT *client_pt, 
-                        NX_SECURE_TLS_SESSION *TLS_session_ptr,
-                        NX_SECURE_X509_CERT *certificate_ptr,
-                        NX_SECURE_X509_CERT *trusted_certificate_ptr)
-{
-  UINT ret = NX_SUCCESS;
-  NX_PARAMETER_NOT_USED(client_pt);
-  
-  /* Initialize TLS module */
-  nx_secure_tls_initialize();
-  
-  /* Create a TLS session */
-  ret = nx_secure_tls_session_create(TLS_session_ptr, &nx_crypto_tls_ciphers, 
-                                     crypto_metadata_client, sizeof(crypto_metadata_client));  
-  if (ret != TX_SUCCESS)
-  {
-    Error_Handler();
-  }   
-  /* Need to allocate space for the certificate coming in from the broker. */
-  memset((certificate_ptr), 0, sizeof(NX_SECURE_X509_CERT));
-  
-  /* Allocate space for packet reassembly. */
-  ret = nx_secure_tls_session_packet_buffer_set(TLS_session_ptr, tls_packet_buffer, 
-                                                sizeof(tls_packet_buffer));
-  if (ret != TX_SUCCESS)
-  {
-    Error_Handler();
-  } 
-  
-  /* allocate space for the certificate coming in from the remote host */
-  ret = nx_secure_tls_remote_certificate_allocate(TLS_session_ptr, certificate_ptr, 
-                                                  tls_packet_buffer, sizeof(tls_packet_buffer));
-  if (ret != TX_SUCCESS)
-  {
-    Error_Handler();
-  }   
-  
-  /* initialize Certificate to verify incoming server certificates. */
-  ret = nx_secure_x509_certificate_initialize(trusted_certificate_ptr, (UCHAR*)mosquitto_org_der, 
-                                              mosquitto_org_der_len, NX_NULL, 0, NULL, 0, 
-                                              NX_SECURE_X509_KEY_TYPE_NONE);
-  if (ret != TX_SUCCESS)
-  {
-    printf("Certificate issue..\nPlease make sure that your X509_certificate is valid. \n");
-    Error_Handler();
-  }   
-  
-  /* Add a CA Certificate to our trusted store */
-  ret = nx_secure_tls_trusted_certificate_add(TLS_session_ptr, trusted_certificate_ptr);
-  if (ret != TX_SUCCESS)
-  {
-    Error_Handler();
-  }   
-  
   return ret;
 }
 
@@ -619,12 +516,12 @@ UINT tls_setup_callback(NXD_MQTT_CLIENT *client_pt,
 * @param thread_input: ULONG user argument used by the thread entry
 * @retval none
 */
-static VOID App_Azure_IoT_Client_Thread_Entry(ULONG thread_input)
+static VOID App_MQTT_Client_Thread_Entry(ULONG thread_input)
 {
   UINT ret = NX_SUCCESS;
-  UINT unix_time;
-  
-  // mqtt_server_ip.nxd_ip_version = 4;
+  UINT        unix_time;
+
+  //mqtt_server_ip.nxd_ip_version = 4;
   
   /* Create a DNS client */
   ret = dns_create(&DnsClient);
@@ -633,11 +530,12 @@ static VOID App_Azure_IoT_Client_Thread_Entry(ULONG thread_input)
   {
     Error_Handler();
   }
-
+  
   /* Sync up time by SNTP at start up.  */
   ret = sntp_time_sync();
 
-  if (ret != NX_SUCCESS) {
+  if (ret != NX_SUCCESS)
+  {
     printf("SNTP Time Sync failed.\r\n");
     printf("Set Time to default value: %u.", DEFAULT_SYSTEM_TIME);
     unix_time_base = DEFAULT_SYSTEM_TIME;
@@ -647,22 +545,10 @@ static VOID App_Azure_IoT_Client_Thread_Entry(ULONG thread_input)
     printf("SNTP Time Sync successfully.\r\n");
   }
 
-  unix_time_get((ULONG *)&unix_time);
+  unix_time_get((ULONG*)&unix_time);
   srand(unix_time);
 
-  // TODO
-  // nx_azure_iot_log_init(log_callback);
-
-  // ret = nx_azure_iot_create(&AzureIoTClient, (UCHAR *)"Azure IoT", &IpInstance, &AppPool, &DnsClient
-  //                           azure_iot_thread_stack, sizeof(azure_iot_thread_stack),
-  //                           AZURE_IOT_THREAD_PRIORITY, &unix_time_get);
-
-  // /* Check status.  */
-  // if (ret != NX_SUCCESS)
-  // {
-  //   Error_Handler();
-  // }
-
+  /* Start the IoT entry. */
   azure_iot_entry(&IpInstance, &AppPool, &DnsClient, unix_time_get);
 }
 /* USER CODE END 1 */

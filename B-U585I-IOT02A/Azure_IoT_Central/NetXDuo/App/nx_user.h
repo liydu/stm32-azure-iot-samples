@@ -49,7 +49,6 @@
 #ifndef NX_USER_H
 #define NX_USER_H
 
-/* Azure IoT Security Module */
 #define NX_AZURE_DISABLE_IOT_SECURITY_MODULE
 
 /* Define various build options for the NetX Duo port. The application should
@@ -141,9 +140,9 @@
    socket events, such as TCP connection and disconnect completion.
    These extended notify functions are mainly used by the BSD wrapper.
    The default is this feature is disabled.  */
-
+/*
 #define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
-
+*/
 
 /* Defined, NetX Duo is built with NAT process. By default this option is not
    defined. */
@@ -1522,7 +1521,7 @@
 /* Defined, application must use TLS to connect to MQTT broker. This feature
    requires NX_SECURE_ENABLE defined. By default, this symbol is not
    defined. */
-/* #define NXD_MQTT_REQUIRE_TLS */
+#define NXD_MQTT_REQUIRE_TLS
 
 /* Defines the MQTT timer rate, in ThreadX timer ticks. This timer is used to
    keep track of the time since last MQTT control message was sent, and sends
@@ -1551,7 +1550,9 @@
 */
 
 /* Defined, enable MQTT over cloud option. */
+
 #define NXD_MQTT_CLOUD_ENABLE
+
 
 /* Define memcpy function used internal. */
 /*
@@ -2248,7 +2249,9 @@
 
 /* The lowest level (highest numeric stratum level) SNTP Server stratum the
    Client will accept. The NetX Duo SNTP Client default is 2. */
-#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM       3
+/*
+#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM       2
+*/
 
 /* The minimum time adjustment in milliseconds the Client will make to its
    local clock time. Time adjustments below this will be ignored. The NetX

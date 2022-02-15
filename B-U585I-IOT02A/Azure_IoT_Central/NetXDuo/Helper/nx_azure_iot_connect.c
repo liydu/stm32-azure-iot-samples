@@ -134,7 +134,7 @@ VOID connection_monitor(NX_IP *ip_ptr, NX_AZURE_IOT_HUB_CLIENT* iothub_client_pt
   UINT loop = NX_TRUE;
   ULONG gateway_address;
 
-    /* Check parameters.  */
+  /* Check parameters.  */
   if ((ip_ptr == NX_NULL) || (iothub_client_ptr == NX_NULL) || (iothub_init == NX_NULL))
   {
     Error_Handler();
@@ -143,27 +143,27 @@ VOID connection_monitor(NX_IP *ip_ptr, NX_AZURE_IOT_HUB_CLIENT* iothub_client_pt
   /* Check if connected.  */
   if (connection_status == NX_SUCCESS)
   {
-
     /* Reset the exponential.  */
     exponential_backoff_reset();
   }
   else
   {
 
-    /* Disconnect.  */
+    /* Disconnect. */
     if (connection_status != NX_AZURE_IOT_NOT_INITIALIZED)
     {
       nx_azure_iot_hub_client_disconnect(iothub_client_ptr);
     }
 
-    /* Recover.  */
+    /* Recover. */
     while (loop)
     {
       switch (connection_status)
       {
 
-        /* Something bad has happened with client state, we need to re-initialize it.  */
+        /* Something bad has happened with client state, we need to re-initialize it. */
         case NX_DNS_QUERY_FAILED:
+        case NXD_MQTT_COMMUNICATION_FAILURE:
         case NXD_MQTT_ERROR_BAD_USERNAME_PASSWORD:
         case NXD_MQTT_ERROR_NOT_AUTHORIZED:
         {
@@ -171,8 +171,8 @@ VOID connection_monitor(NX_IP *ip_ptr, NX_AZURE_IOT_HUB_CLIENT* iothub_client_pt
           /* Deinitialize iot hub client. */
           nx_azure_iot_hub_client_deinitialize(iothub_client_ptr);
         }
-          /* fallthrough */
 
+        /* Fallthrough */
         case NX_AZURE_IOT_NOT_INITIALIZED:
         {
           if (iothub_init_count++)

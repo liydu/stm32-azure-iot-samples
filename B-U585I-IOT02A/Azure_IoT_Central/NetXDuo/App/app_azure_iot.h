@@ -1,28 +1,29 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    app_azure_iot.h
-  * @author  MCD Application Team
-  * @brief   Azure IoT application header file
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2022 Microsoft.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    app_azure_iot.h
+ * @author  MCD Application Team
+ * @brief   Azure IoT application header file
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2022 Microsoft.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __APP_AZURE_IOT_H__
 #define __APP_AZURE_IOT_H__
 
 #ifdef __cplusplus
- extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -30,6 +31,7 @@
 /* USER CODE BEGIN Includes */
 #include "main.h"
 
+#include "nx_azure_iot_json_writer.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -67,7 +69,10 @@
 /* Private defines -----------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 
-/* Define events.  */
+/* Define wait option. */
+#define WAIT_OPTION (NX_NO_WAIT)
+
+/* Define events. */
 #define ALL_EVENTS                        ((ULONG)0xFFFFFFFF)
 #define CONNECTED_EVENT                   ((ULONG)0x00000001)
 #define DISCONNECT_EVENT                  ((ULONG)0x00000002)
@@ -78,11 +83,11 @@
 #define WRITABLE_PROPERTIES_RECEIVE_EVENT ((ULONG)0x00000040)
 #define REPORTED_PROPERTIES_SEND_EVENT    ((ULONG)0x00000080)
 
-/* USER CODE END PD */
+  /* USER CODE END PD */
 
-/* USER CODE BEGIN 1 */
+  /* USER CODE BEGIN 1 */
 
-/* USER CODE END 1 */
+  /* USER CODE END 1 */
 
 #ifdef __cplusplus
 }
