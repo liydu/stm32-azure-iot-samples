@@ -5130,6 +5130,21 @@
 			<locationURI>PARENT-1-PROJECT_LOC/NetXDuo/App/app_netxduo.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/NetXDuo/Helper/nx_azure_iot_cert.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/NetXDuo/Helper/nx_azure_iot_cert.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/NetXDuo/Helper/nx_azure_iot_ciphersuites.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/NetXDuo/Helper/nx_azure_iot_ciphersuites.c</locationURI>
+		</link>
+		<link>
+			<name>Application/User/NetXDuo/Helper/nx_azure_iot_connect.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/NetXDuo/Helper/nx_azure_iot_connect.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/BSP/Components/mx_wifi/mx_wifi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/BSP/Components/mx_wifi/mx_wifi.c</locationURI>

@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "nx_secure_tls_api.h": "c",
+        "nx_azure_iot_cert.h": "c"
+    }
+}
