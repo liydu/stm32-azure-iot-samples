@@ -7,5 +7,6 @@ AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 IndentCaseLabels: true
 PointerAlignment: Left
+IndentWidth: 2
 BraceWrapping:
-  AfterCaseLabel: true
+    AfterCaseLabel: true

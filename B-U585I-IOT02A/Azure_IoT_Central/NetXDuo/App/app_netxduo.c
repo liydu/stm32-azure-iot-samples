@@ -27,9 +27,6 @@
 #include "nx_ip.h"
 /* USER CODE END Includes */
 
-extern VOID azure_iot_entry(
-    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time));
-
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
@@ -83,6 +80,10 @@ static VOID App_Main_Thread_Entry(ULONG thread_input);
 static VOID App_MQTT_Client_Thread_Entry(ULONG thread_input);
 static VOID ip_address_change_notify_callback(NX_IP *ip_instance, VOID *ptr);
 /* USER CODE END PFP */
+
+extern UINT azure_iot_entry(
+    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time));
+
 /**
   * @brief  Application NetXDuo Initialization.
   * @param memory_ptr: memory pointer
@@ -549,6 +550,12 @@ static VOID App_MQTT_Client_Thread_Entry(ULONG thread_input)
   srand(unix_time);
 
   /* Start the IoT entry. */
-  azure_iot_entry(&IpInstance, &AppPool, &DnsClient, unix_time_get);
+  ret = azure_iot_entry(&IpInstance, &AppPool, &DnsClient, unix_time_get);
+
+  if (ret != NX_SUCCESS)
+  {
+    printf("ERROR: Failed to run Azure IoT (0x%04x)\r\n", ret);
+    Error_Handler();
+  }
 }
 /* USER CODE END 1 */

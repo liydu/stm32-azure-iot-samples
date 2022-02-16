@@ -41,17 +41,16 @@ extern "C"
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-#define HOST_NAME            "liya-iot.azure-devices.net"
-#define DEVICE_ID            "u5"
-#define DEVICE_SYMMETRIC_KEY "P83AodUwCucRbvtSgPWVKbmSeso4vZ79Fm9M/8a1btc="
-#define MODULE_ID            ""
+
+
+
+#define IOT_HUB_HOSTNAME  "liya-iot.azure-devices.net"
+#define IOT_HUB_DEVICE_ID "u5"
+
+#define IOT_DEVICE_SAS_KEY "P83AodUwCucRbvtSgPWVKbmSeso4vZ79Fm9M/8a1btc="
 
 /* PnP Configurations*/
 #define DEVICE_MODEL_ID      "dtmi:azurertos:devkit:gsgstml4s5;2"
-
-/* Define the Azure RTOS IOT thread stack and priority.  */
-#define AZURE_IOT_STACK_SIZE      (2048)
-#define AZURE_IOT_THREAD_PRIORITY (4)
 
 /* USER CODE END EC */
 

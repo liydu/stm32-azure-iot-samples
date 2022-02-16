@@ -19,7 +19,7 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include "nx_azure_iot_hub_client.h"
+#include "nx_azure_iot_client.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -46,51 +46,83 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 static UINT exponential_retry_count;
-static UINT iothub_init_count = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-VOID connection_monitor(
-    NX_IP *ip_ptr, 
-    NX_AZURE_IOT_HUB_CLIENT *iothub_client_ptr, 
-    UINT connection_status, 
-    UINT (*iothub_init)(NX_AZURE_IOT_HUB_CLIENT* iothub_client_ptr)
-);
 
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 1 */
 static UINT exponential_backoff_with_jitter()
 {
-double jitter_percent = (MAX_EXPONENTIAL_BACKOFF_JITTER_PERCENT / 100.0) * (rand() / ((double)RAND_MAX));
-UINT base_delay = MAX_EXPONENTIAL_BACKOFF_IN_SEC;
-uint64_t delay;
+  double   jitter_percent = (MAX_EXPONENTIAL_BACKOFF_JITTER_PERCENT / 100.0) * (rand() / ((double)RAND_MAX));
+  UINT     base_delay     = MAX_EXPONENTIAL_BACKOFF_IN_SEC;
+  uint64_t delay;
+  UINT     backoff_seconds;
 
-    if (exponential_retry_count < (sizeof(UINT) * 8))
-    {
-        delay = (uint64_t)((1 << exponential_retry_count) * INITIAL_EXPONENTIAL_BACKOFF_IN_SEC);
-        if (delay <= (UINT)(-1))
-        {
-            base_delay = (UINT)delay;
-        }
-    }
+  // If the retry is 0, then we don't need to delay the first time
+  if (exponential_retry_count++ == 0)
+  {
+    return NX_TRUE;
+  }
 
-    if (base_delay > MAX_EXPONENTIAL_BACKOFF_IN_SEC)
+  if (exponential_retry_count < (sizeof(UINT) * 8))
+  {
+    delay = (uint64_t)((1 << exponential_retry_count) * INITIAL_EXPONENTIAL_BACKOFF_IN_SEC);
+    if (delay <= (UINT)(-1))
     {
-        base_delay = MAX_EXPONENTIAL_BACKOFF_IN_SEC;
+      base_delay = (UINT)delay;
     }
-    else
-    {
-        exponential_retry_count++;
-    }
+  }
 
-    return((UINT)(base_delay * (1 + jitter_percent)) * NX_IP_PERIODIC_RATE) ;
+  if (base_delay > MAX_EXPONENTIAL_BACKOFF_IN_SEC)
+  {
+    base_delay = MAX_EXPONENTIAL_BACKOFF_IN_SEC;
+  }
+  else
+  {
+    exponential_retry_count++;
+  }
+
+  backoff_seconds = (UINT)(base_delay * (1 + jitter_percent));
+
+  printf("\r\nIoT connection backoff for %d seconds\r\n", backoff_seconds);
+  tx_thread_sleep(backoff_seconds * NX_IP_PERIODIC_RATE);
 }
 
-static VOID exponential_backoff_reset()
+static void exponential_backoff_reset()
 {
     exponential_retry_count = 0;
+}
+
+static void iothub_connect(AZURE_IOT_CONTEXT* context)
+{
+  UINT ret;
+
+  // Connect to IoT hub
+  printf("\r\nInitializing Azure IoT Hub client\r\n");
+  printf("\tHub hostname: %.*s\r\n", context->azure_iot_hub_hostname_length, context->azure_iot_hub_hostname);
+  printf("\tDevice id: %.*s\r\n", context->azure_iot_hub_device_id_length, context->azure_iot_hub_device_id);
+  printf("\tModel id: %.*s\r\n", context->azure_iot_model_id_length, context->azure_iot_model_id);
+
+  if ((ret = nx_azure_iot_hub_client_connect(&context->iothub_client, NX_FALSE, NX_WAIT_FOREVER)))
+  {
+    printf("ERROR: nx_azure_iot_hub_client_connect (0x%08x)\r\n", ret);
+  }
+
+  // stash the connection status to be used by the monitor loop
+  context->azure_iot_connection_status = ret;
+}
+
+VOID connection_status_set(AZURE_IOT_CONTEXT* context, UINT connection_status)
+{
+  context->azure_iot_connection_status = connection_status;
+
+  if (context->azure_iot_connection_status == NX_SUCCESS)
+  {
+    printf("SUCCESS: Connected to IoT Hub\r\n\r\n");
+  }
 }
 
 /**
@@ -128,107 +160,87 @@ static VOID exponential_backoff_reset()
  *
  *
  */
-VOID connection_monitor(NX_IP *ip_ptr, NX_AZURE_IOT_HUB_CLIENT* iothub_client_ptr, UINT connection_status, 
-                        UINT (*iothub_init)(NX_AZURE_IOT_HUB_CLIENT* iothub_client_ptr))
+VOID connection_monitor(
+    AZURE_IOT_CONTEXT* context, UINT (*iothub_init)(AZURE_IOT_CONTEXT* context))
 {
   UINT loop = NX_TRUE;
-  ULONG gateway_address;
 
-  /* Check parameters.  */
-  if ((ip_ptr == NX_NULL) || (iothub_client_ptr == NX_NULL) || (iothub_init == NX_NULL))
+  /* Check parameters. */
+  if ((context == NX_NULL) || (iothub_init == NX_NULL))
   {
-    Error_Handler();
+    return;
   }
 
-  /* Check if connected.  */
-  if (connection_status == NX_SUCCESS)
+  /* Check if connected. */
+  if (context->azure_iot_connection_status == NX_SUCCESS)
   {
-    /* Reset the exponential.  */
+    /* Reset the exponential. */
     exponential_backoff_reset();
+    return;
   }
-  else
-  {
 
-    /* Disconnect. */
-    if (connection_status != NX_AZURE_IOT_NOT_INITIALIZED)
+  /* Disconnect. */
+  if (context->azure_iot_connection_status != NX_AZURE_IOT_NOT_INITIALIZED)
+  {
+    nx_azure_iot_hub_client_disconnect(&context->iothub_client);
+  }
+
+  /* Recover. */
+  while (loop)
+  {
+    switch (context->azure_iot_connection_status)
     {
-      nx_azure_iot_hub_client_disconnect(iothub_client_ptr);
+      /* Something bad has happened with client state, we need to re-initialize it. */
+      case NX_DNS_QUERY_FAILED:
+      case NXD_MQTT_COMMUNICATION_FAILURE:
+      case NXD_MQTT_ERROR_BAD_USERNAME_PASSWORD:
+      case NXD_MQTT_ERROR_NOT_AUTHORIZED:
+      {
+        /* Deinitialize iot hub client. */
+        nx_azure_iot_hub_client_deinitialize(&context->iothub_client);
+      }
+
+      /* Fallthrough. */
+      case NX_AZURE_IOT_NOT_INITIALIZED:
+      {
+        /* Set the state to not initialized. */
+        context->azure_iot_connection_status = NX_AZURE_IOT_NOT_INITIALIZED;
+
+        /* Connect the network. */
+        //if (network_connect() != NX_SUCCESS)
+        //{
+        //  // Failed, break out to try again next time
+        //  break;
+        //}
+
+        /* Initiliaze connection to IoT Hub. */
+        exponential_backoff_with_jitter();
+        if (iothub_init(context) == NX_SUCCESS)
+        {
+          iothub_connect(context);
+        }
+      }
+      break;
+
+      case NX_AZURE_IOT_SAS_TOKEN_EXPIRED:
+      {
+        printf("SAS token has expired\r\n");
+      }
+
+      /* Fallthrough. */
+      default:
+      {
+        /* Connect IoT Hub. */
+        exponential_backoff_with_jitter();
+        iothub_connect(context);
+      }
+      break;
     }
 
-    /* Recover. */
-    while (loop)
+    /* Check status, return on success. */
+    if (context->azure_iot_connection_status == NX_SUCCESS)
     {
-      switch (connection_status)
-      {
-
-        /* Something bad has happened with client state, we need to re-initialize it. */
-        case NX_DNS_QUERY_FAILED:
-        case NXD_MQTT_COMMUNICATION_FAILURE:
-        case NXD_MQTT_ERROR_BAD_USERNAME_PASSWORD:
-        case NXD_MQTT_ERROR_NOT_AUTHORIZED:
-        {
-
-          /* Deinitialize iot hub client. */
-          nx_azure_iot_hub_client_deinitialize(iothub_client_ptr);
-        }
-
-        /* Fallthrough */
-        case NX_AZURE_IOT_NOT_INITIALIZED:
-        {
-          if (iothub_init_count++)
-          {
-            printf("Re-initializing iothub connection, after backoff\r\n");
-            tx_thread_sleep(exponential_backoff_with_jitter());
-          }
-
-          /* Initialize iot hub.  */
-          if (iothub_init(iothub_client_ptr))
-          {
-            connection_status = NX_AZURE_IOT_NOT_INITIALIZED;
-          }
-          else
-          {
-
-            /* Wait for network.  */
-            while (nx_ip_gateway_address_get(ip_ptr, &gateway_address))
-            {
-              tx_thread_sleep(NX_IP_PERIODIC_RATE);
-            }
-
-            /* Connect to iot hub.  */
-            connection_status = nx_azure_iot_hub_client_connect(iothub_client_ptr, NX_FALSE, NX_WAIT_FOREVER);
-          }
-        }
-        break;
-
-        case NX_AZURE_IOT_SAS_TOKEN_EXPIRED:
-        {
-          printf("SAS token expired\r\n");
-        }
-        
-        /* Fallthrough */
-        default:
-        {
-          printf("Reconnecting iothub, after backoff\r\n");
-
-          tx_thread_sleep(exponential_backoff_with_jitter());
-
-          /* Wait for network.  */
-          while (nx_ip_gateway_address_get(ip_ptr, &gateway_address))
-          {
-            tx_thread_sleep(NX_IP_PERIODIC_RATE);
-          }
-
-          connection_status = nx_azure_iot_hub_client_connect(iothub_client_ptr, NX_FALSE, NX_WAIT_FOREVER);
-        }
-        break;
-      }
-
-      /* Check status.  */
-      if (connection_status == NX_SUCCESS)
-      {
-        return;
-      }
+      return;
     }
   }
 }

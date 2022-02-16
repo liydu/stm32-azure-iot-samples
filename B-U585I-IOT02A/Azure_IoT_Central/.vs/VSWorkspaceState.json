@@ -5,6 +5,6 @@
     "\\NetXDuo\\App",
     "\\NetXDuo\\Helper"
   ],
-  "SelectedNode": "\\NetXDuo\\Helper\\nx_azure_iot_client.h",
+  "SelectedNode": "\\NetXDuo\\Helper\\nx_azure_iot_connect.h",
   "PreviewInSolutionExplorer": false
 }

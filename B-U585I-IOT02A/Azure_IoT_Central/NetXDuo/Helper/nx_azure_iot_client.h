@@ -64,13 +64,14 @@ typedef void (*func_ptr_property_received)(
 typedef void (*func_ptr_properties_complete)(AZURE_IOT_CONTEXT*);
 typedef void (*func_ptr_timer)(AZURE_IOT_CONTEXT*);
 
+/* Azure IoT context struct */
 struct AZURE_IOT_CONTEXT_STRUCT
 {
   NX_SECURE_X509_CERT root_ca_cert;
   NX_SECURE_X509_CERT root_ca_cert_2;
   NX_SECURE_X509_CERT root_ca_cert_3;
 
-  NX_IP* nx_ip;
+  NX_IP* azure_iot_nx_ip;
 
   ULONG nx_azure_iot_tls_metadata_buffer[NX_AZURE_IOT_TLS_METADATA_BUFFER_SIZE / sizeof(ULONG)];
   ULONG nx_azure_iot_thread_stack[NX_AZURE_IOT_STACK_SIZE / sizeof(ULONG)];
@@ -84,7 +85,7 @@ struct AZURE_IOT_CONTEXT_STRUCT
 
   // Auth config
   CHAR*               azure_iot_device_sas_key;
-  UINT                azure_iot_device_sas_key_len;
+  UINT                azure_iot_device_sas_key_length;
   NX_SECURE_X509_CERT device_certificate;
 
   // IoT Hub connection config
@@ -131,6 +132,20 @@ struct AZURE_IOT_CONTEXT_STRUCT
 
 /* Exported functions prototypes ---------------------------------------------*/
 /* USER CODE BEGIN EFP */
+
+/* Periodic telemetry sending. */
+UINT nx_azure_iot_client_periodic_interval_set(AZURE_IOT_CONTEXT* context, INT interval);
+
+UINT nx_azure_iot_client_register_timer_callback(
+    AZURE_IOT_CONTEXT* context, func_ptr_timer callback, int32_t interval);
+
+UINT nx_azure_iot_client_publish_telemetry(AZURE_IOT_CONTEXT* context,
+    CHAR*                                                     component_name_ptr,
+    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_writer_ptr));
+
+/* Set authentication. */
+UINT nx_azure_iot_client_sas_set(AZURE_IOT_CONTEXT* context, CHAR* device_sas_key);
+
 UINT nx_azure_iot_client_create(AZURE_IOT_CONTEXT* context,
     NX_IP*                                         nx_ip,
     NX_PACKET_POOL*                                nx_pool,
@@ -138,6 +153,10 @@ UINT nx_azure_iot_client_create(AZURE_IOT_CONTEXT* context,
     UINT (*unix_time_callback)(ULONG* unix_time),
     CHAR* device_model_id,
     UINT  device_model_id_length);
+
+/* Main loop. */
+UINT nx_azure_iot_client_hub_run(
+    AZURE_IOT_CONTEXT* context, CHAR* iot_hub_hostname, CHAR* iot_hub_device_id);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
