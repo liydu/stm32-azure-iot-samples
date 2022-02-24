@@ -136,7 +136,7 @@ UINT Azure_Iot_Entry(
 
   /* Enter the main loop. */
 #ifdef ENABLE_DPS
-
+  nx_azure_iot_client_dps_run(&nx_azure_iot_client, IOT_DPS_ID_SCOPE, IOT_DPS_REGISTRATION_ID, MX_NetXDuo_Connect);
 #else
   nx_azure_iot_client_hub_run(&nx_azure_iot_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID, MX_NetXDuo_Connect);
 #endif
