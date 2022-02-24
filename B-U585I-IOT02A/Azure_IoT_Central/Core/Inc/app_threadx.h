@@ -50,7 +50,6 @@
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
-UINT App_ThreadX_Init(VOID *memory_ptr);
 void MX_ThreadX_Init(void);
 
 /* USER CODE BEGIN EFP */

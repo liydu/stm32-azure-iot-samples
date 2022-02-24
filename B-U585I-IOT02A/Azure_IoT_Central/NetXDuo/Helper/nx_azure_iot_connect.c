@@ -98,7 +98,7 @@ static void exponential_backoff_reset()
 
 static void iothub_connect(AZURE_IOT_CONTEXT* context)
 {
-  UINT ret;
+  UINT status;
 
   // Connect to IoT hub
   printf("\r\nInitializing Azure IoT Hub client\r\n");
@@ -106,13 +106,13 @@ static void iothub_connect(AZURE_IOT_CONTEXT* context)
   printf("\tDevice id: %.*s\r\n", context->azure_iot_hub_device_id_length, context->azure_iot_hub_device_id);
   printf("\tModel id: %.*s\r\n", context->azure_iot_model_id_length, context->azure_iot_model_id);
 
-  if ((ret = nx_azure_iot_hub_client_connect(&context->iothub_client, NX_FALSE, NX_WAIT_FOREVER)))
+  if ((status = nx_azure_iot_hub_client_connect(&context->iothub_client, NX_FALSE, NX_WAIT_FOREVER)))
   {
-    printf("ERROR: nx_azure_iot_hub_client_connect (0x%08x)\r\n", ret);
+    printf("ERROR: nx_azure_iot_hub_client_connect (0x%08x)\r\n", status);
   }
 
   // stash the connection status to be used by the monitor loop
-  context->azure_iot_connection_status = ret;
+  context->azure_iot_connection_status = status;
 }
 
 VOID connection_status_set(AZURE_IOT_CONTEXT* context, UINT connection_status)
@@ -161,7 +161,7 @@ VOID connection_status_set(AZURE_IOT_CONTEXT* context, UINT connection_status)
  *
  */
 VOID connection_monitor(
-    AZURE_IOT_CONTEXT* context, UINT (*iothub_init)(AZURE_IOT_CONTEXT* context))
+    AZURE_IOT_CONTEXT* context, UINT (*iothub_init)(AZURE_IOT_CONTEXT* context), UINT (*network_connect)())
 {
   UINT loop = NX_TRUE;
 
@@ -207,11 +207,11 @@ VOID connection_monitor(
         context->azure_iot_connection_status = NX_AZURE_IOT_NOT_INITIALIZED;
 
         /* Connect the network. */
-        //if (network_connect() != NX_SUCCESS)
-        //{
-        //  // Failed, break out to try again next time
-        //  break;
-        //}
+        if (network_connect() != NX_SUCCESS)
+        {
+          /* Failed, break out to try again next time. */
+          break;
+        }
 
         /* Initiliaze connection to IoT Hub. */
         exponential_backoff_with_jitter();

@@ -52,7 +52,8 @@ extern "C"
 /* USER CODE BEGIN EFP */
 VOID connection_status_set(AZURE_IOT_CONTEXT* context, UINT connection_status);
 
-VOID connection_monitor(AZURE_IOT_CONTEXT* context, UINT (*iothub_init)(AZURE_IOT_CONTEXT* context));
+VOID connection_monitor(
+    AZURE_IOT_CONTEXT* context, UINT (*iothub_init)(AZURE_IOT_CONTEXT* context), UINT (*network_connect)());
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

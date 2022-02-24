@@ -156,7 +156,7 @@ UINT nx_azure_iot_client_create(AZURE_IOT_CONTEXT* context,
 
 /* Main loop. */
 UINT nx_azure_iot_client_hub_run(
-    AZURE_IOT_CONTEXT* context, CHAR* iot_hub_hostname, CHAR* iot_hub_device_id);
+    AZURE_IOT_CONTEXT* context, CHAR* iot_hub_hostname, CHAR* iot_hub_device_id, UINT (*network_connect)());
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
