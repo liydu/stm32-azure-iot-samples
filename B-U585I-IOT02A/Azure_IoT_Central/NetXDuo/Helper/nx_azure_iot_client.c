@@ -52,6 +52,9 @@
 #define HUB_PROPERTIES_COMPLETE_EVENT         0x20
 #define HUB_PERIODIC_TIMER_EVENT              0x40
 
+#define DPS_ENDPOINT "global.azure-devices-provisioning.net"
+#define DPS_PAYLOAD  "{\"modelId\":\"%s\"}"
+
 #define MODULE_ID ""
 
 /* Connection timeouts in threadx ticks. */
@@ -247,6 +250,144 @@ static UINT iot_hub_initialize(AZURE_IOT_CONTEXT* context)
   }
 
   return status;
+}
+
+/**
+ * @brief  Initialize DPS client.
+ * @param context: AZURE_IOT_CONTEXT
+ * @retval iot_hub_initialize() status
+ */
+static UINT dps_initialize(AZURE_IOT_CONTEXT* context)
+{
+  UINT status;
+  CHAR payload[DPS_PAYLOAD_SIZE];
+
+  if (context == NULL)
+  {
+    printf("ERROR: context is NULL\r\n");
+    return NX_PTR_ERROR;
+  }
+
+  // Return error if empty credentials
+  if (context->azure_iot_dps_id_scope_length == 0 || context->azure_iot_dps_registration_id_length == 0)
+  {
+    printf("ERROR: azure_iot_nx_client_dps_entry incorrect parameters\r\n");
+    return NX_PTR_ERROR;
+  }
+
+  printf("\r\nInitializing Azure IoT DPS client\r\n");
+  printf("\tDPS endpoint: %s\r\n", DPS_ENDPOINT);
+  printf("\tDPS ID scope: %.*s\r\n", context->azure_iot_dps_id_scope_length, context->azure_iot_dps_id_scope);
+  printf("\tRegistration ID: %.*s\r\n",
+      context->azure_iot_dps_registration_id_length,
+      context->azure_iot_dps_registration_id);
+
+  // Initialise the length of the return buffers
+  context->azure_iot_hub_hostname_length  = sizeof(context->azure_iot_hub_hostname);
+  context->azure_iot_hub_device_id_length = sizeof(context->azure_iot_hub_device_id);
+
+  if (snprintf(payload, sizeof(payload), DPS_PAYLOAD, context->azure_iot_model_id) > DPS_PAYLOAD_SIZE - 1)
+  {
+    printf("ERROR: insufficient buffer size to create DPS payload\r\n");
+    return NX_SIZE_ERROR;
+  }
+
+  // Initialize IoT provisioning client
+  if ((status = nx_azure_iot_provisioning_client_initialize(&context->dps_client,
+           &context->nx_azure_iot,
+           (UCHAR*)DPS_ENDPOINT,
+           strlen(DPS_ENDPOINT),
+           (UCHAR*)context->azure_iot_dps_id_scope,
+           context->azure_iot_dps_id_scope_length,
+           (UCHAR*)context->azure_iot_dps_registration_id,
+           context->azure_iot_dps_registration_id_length,
+           _nx_azure_iot_tls_supported_crypto,
+           _nx_azure_iot_tls_supported_crypto_size,
+           _nx_azure_iot_tls_ciphersuite_map,
+           _nx_azure_iot_tls_ciphersuite_map_size,
+           (UCHAR*)context->nx_azure_iot_tls_metadata_buffer,
+           sizeof(context->nx_azure_iot_tls_metadata_buffer),
+           &context->root_ca_cert)))
+  {
+    printf("ERROR: nx_azure_iot_provisioning_client_initialize (0x%08x)\r\n", status);
+    return status;
+  }
+
+  // Add more CA certificates
+  else if ((status = nx_azure_iot_provisioning_client_trusted_cert_add(
+                &context->dps_client, &context->root_ca_cert_2)))
+  {
+    printf("ERROR: nx_azure_iot_provisioning_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+  }
+  else if ((status = nx_azure_iot_provisioning_client_trusted_cert_add(
+                &context->dps_client, &context->root_ca_cert_3)))
+  {
+    printf("ERROR: nx_azure_iot_provisioning_client_trusted_cert_add!: error code = 0x%08x\r\n", status);
+  }
+
+  else
+  {
+    switch (context->azure_iot_auth_mode)
+    {
+      // Symmetric (SAS) Key
+      case AZURE_IOT_AUTH_MODE_SAS:
+        if ((status = nx_azure_iot_provisioning_client_symmetric_key_set(&context->dps_client,
+                 (UCHAR*)context->azure_iot_device_sas_key,
+                 context->azure_iot_device_sas_key_length)))
+        {
+          printf("ERROR: nx_azure_iot_provisioning_client_symmetric_key_set (0x%08x)\r\n", status);
+        }
+        break;
+
+      // X509 Certificate
+      case AZURE_IOT_AUTH_MODE_CERT:
+        if ((status = nx_azure_iot_provisioning_client_device_cert_set(
+                 &context->dps_client, &context->device_certificate)))
+        {
+          printf("ERROR: nx_azure_iot_provisioning_client_device_cert_set (0x%08x)\r\n", status);
+        }
+        break;
+    }
+  }
+
+  if (status != NX_AZURE_IOT_SUCCESS)
+  {
+    printf("ERROR: failed to set initialize DPS\r\n");
+  }
+
+  // Set the payload containing the model Id
+  else if ((status = nx_azure_iot_provisioning_client_registration_payload_set(
+                &context->dps_client, (UCHAR*)payload, strlen(payload))))
+  {
+    printf("ERROR: nx_azure_iot_provisioning_client_registration_payload_set (0x%08x\r\n", status);
+  }
+
+  else if ((status = nx_azure_iot_provisioning_client_register(&context->dps_client, DPS_REGISTER_TIMEOUT_TICKS)))
+  {
+    printf("\tERROR: nx_azure_iot_provisioning_client_register (0x%08x)\r\n", status);
+  }
+
+  // Stash IoT Hub Device info
+  else if ((status = nx_azure_iot_provisioning_client_iothub_device_info_get(&context->dps_client,
+                (UCHAR*)context->azure_iot_hub_hostname,
+                &context->azure_iot_hub_hostname_length,
+                (UCHAR*)context->azure_iot_hub_device_id,
+                &context->azure_iot_hub_device_id_length)))
+  {
+    printf("ERROR: nx_azure_iot_provisioning_client_iothub_device_info_get (0x%08x)\r\n", status);
+  }
+
+  // Destroy Provisioning Client
+  nx_azure_iot_provisioning_client_deinitialize(&context->dps_client);
+
+  if (status != NX_SUCCESS)
+  {
+    return status;
+  }
+
+  printf("SUCCESS: Azure IoT DPS client initialized\r\n");
+
+  return iot_hub_initialize(context);
 }
 
 static VOID process_connect(AZURE_IOT_CONTEXT* context)
@@ -568,7 +709,7 @@ UINT nx_azure_iot_client_create(AZURE_IOT_CONTEXT* context,
  /**
   * @brief  IoT Hub client run.
   * @param context: AZURE_IOT_CONTEXT, 
-  * @retval int
+  * @retval client_run() status
   */
  UINT nx_azure_iot_client_hub_run(
      AZURE_IOT_CONTEXT* context, CHAR* iot_hub_hostname, CHAR* iot_hub_device_id, UINT (*network_connect)())
@@ -593,5 +734,29 @@ UINT nx_azure_iot_client_create(AZURE_IOT_CONTEXT* context,
 
    return client_run(context, iot_hub_initialize, network_connect);
  }
+
+  /**
+  * @brief  DPS client run.
+  * @param context: AZURE_IOT_CONTEXT,
+  * @retval client_run() status
+  */
+ UINT nx_azure_iot_client_dps_run(
+     AZURE_IOT_CONTEXT* context, CHAR* dps_id_scope, CHAR* dps_registration_id, UINT (*network_connect)())
+ {
+   if (dps_id_scope == 0 || dps_registration_id == 0)
+   {
+     printf("ERROR: azure_iot_nx_client_dps_run dps config is null\r\n");
+     return NX_PTR_ERROR;
+   }
+
+   // keep a reference to the dps config
+   context->azure_iot_dps_id_scope               = dps_id_scope;
+   context->azure_iot_dps_registration_id        = dps_registration_id;
+   context->azure_iot_dps_id_scope_length        = strlen(dps_id_scope);
+   context->azure_iot_dps_registration_id_length = strlen(dps_registration_id);
+
+   return client_run(context, dps_initialize, network_connect);
+ }
+
 
 /* USER CODE END 1 */

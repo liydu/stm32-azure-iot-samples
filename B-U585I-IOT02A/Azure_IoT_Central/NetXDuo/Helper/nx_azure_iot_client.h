@@ -94,6 +94,12 @@ struct AZURE_IOT_CONTEXT_STRUCT
   CHAR azure_iot_hub_device_id[AZURE_IOT_DEVICE_ID_SIZE];
   UINT azure_iot_hub_device_id_length;
 
+  // DPS connection config
+  CHAR* azure_iot_dps_id_scope;
+  UINT  azure_iot_dps_id_scope_length;
+  CHAR* azure_iot_dps_registration_id;
+  UINT  azure_iot_dps_registration_id_length;
+
   TX_THREAD            azure_iot_thread;
   TX_EVENT_FLAGS_GROUP events;
   TX_TIMER             periodic_timer;
@@ -155,6 +161,9 @@ UINT nx_azure_iot_client_create(AZURE_IOT_CONTEXT* context,
     UINT  device_model_id_length);
 
 /* Main loop. */
+UINT nx_azure_iot_client_dps_run(
+    AZURE_IOT_CONTEXT* context, CHAR* dps_id_scope, CHAR* dps_registration_id, UINT (*network_connect)());
+
 UINT nx_azure_iot_client_hub_run(
     AZURE_IOT_CONTEXT* context, CHAR* iot_hub_hostname, CHAR* iot_hub_device_id, UINT (*network_connect)());
 /* USER CODE END EFP */

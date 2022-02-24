@@ -41,13 +41,23 @@ extern "C"
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-#define IOT_HUB_HOSTNAME  "liya-iot.azure-devices.net"
-#define IOT_HUB_DEVICE_ID "u5"
 
-#define IOT_DEVICE_SAS_KEY "P83AodUwCucRbvtSgPWVKbmSeso4vZ79Fm9M/8a1btc="
+/* IoT Hub configurations. */
+#define IOT_HUB_HOSTNAME  ""
+#define IOT_HUB_DEVICE_ID ""
+
+/* Enable DPS. */
+#define ENABLE_DPS
+
+/* DPS configurations. */
+#define IOT_DPS_ID_SCOPE        "0ne00433CCB"
+#define IOT_DPS_REGISTRATION_ID "u5"
+
+/* SAS Token. */
+#define IOT_DEVICE_SAS_KEY "ub1og7aLbV1ewdJV9C0Oyi2uFR5LB8JOHteO0439qoQ="
 
 /* PnP Configurations*/
-#define DEVICE_MODEL_ID      "dtmi:azurertos:devkit:gsgstml4s5;2"
+#define DEVICE_MODEL_ID "dtmi:azurertos:devkit:gsgstml4s5;2"
 
 /* USER CODE END EC */
 
