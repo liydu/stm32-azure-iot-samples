@@ -22,7 +22,8 @@
 #include "app_azure_rtos.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "app_netxduo.h"
+#include "app_azure_iot.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -32,7 +33,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define APP_THREAD_STACK_SIZE 4096
+#define APP_THREAD_PRIORITY   10
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -42,97 +44,65 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+TX_THREAD AppThread;
+ULONG     app_thread_stack[APP_THREAD_STACK_SIZE / sizeof(ULONG)];
 /* USER CODE END PV */
-
-#if (USE_MEMORY_POOL_ALLOCATION == 1)
-/* USER CODE BEGIN TX_Pool_Buffer */
-/* USER CODE END TX_Pool_Buffer */
-static UCHAR tx_byte_pool_buffer[TX_APP_MEM_POOL_SIZE];
-static TX_BYTE_POOL tx_app_byte_pool;
-
-/* USER CODE BEGIN NX_Pool_Buffer */
-/* USER CODE END NX_Pool_Buffer */
-static UCHAR  nx_byte_pool_buffer[NX_APP_MEM_POOL_SIZE];
-static TX_BYTE_POOL nx_app_byte_pool;
-
-#endif
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
+/**
+ * @brief  App thread entry.
+ * @param  first_unused_memory : Pointer to the first unused memory
+ * @retval None
+ */
+static VOID app_thread_entry(ULONG parameter)
+{
+  UINT status;
 
-  /**
-  * @brief  Define the initial system.
-  * @param  first_unused_memory : Pointer to the first unused memory
-  * @retval None
-  */
+  printf("Starting Azure thread\r\n\r\n");
+
+  /* Initialize NetXDuo. */
+  if ((status = MX_NetXDuo_Init()))
+  {
+    printf("ERROR: Failed to initialize NetXDuo (0x%08x)\r\n", status);
+    Error_Handler();
+  }
+
+  //if ((status = azure_iot_nx_client_entry(&nx_ip, &nx_pool, &nx_dns_client, sntp_time)))
+  if ((status = Azure_Iot_Entry(&IpInstance, &AppPool, &DnsClient, sntp_time)))
+  {
+    printf("ERROR: Failed to run Azure IoT (0x%04x)\r\n", status);
+    Error_Handler();
+  }
+}
+
+/**
+* @brief  Define the initial system.
+* @param  first_unused_memory : Pointer to the first unused memory
+* @retval None
+*/
 VOID tx_application_define(VOID *first_unused_memory)
 {
   /* USER CODE BEGIN  tx_application_define_1*/
+  /* Create Azure thread. */
+  UINT status = tx_thread_create(&AppThread,
+      "App Thread",
+      app_thread_entry,
+      0,
+      app_thread_stack,
+      APP_THREAD_STACK_SIZE,
+      APP_THREAD_PRIORITY,
+      APP_THREAD_PRIORITY,
+      TX_NO_TIME_SLICE,
+      TX_AUTO_START);
 
+  if (status != TX_SUCCESS)
+  {
+    printf("ERROR: Azure IoT thread creation failed\r\n");
+  }
   /* USER CODE END  tx_application_define_1 */
-#if (USE_MEMORY_POOL_ALLOCATION == 1)
-  UINT status = TX_SUCCESS;
-  VOID *memory_ptr;
-
-  if (tx_byte_pool_create(&tx_app_byte_pool, "Tx App memory pool", tx_byte_pool_buffer, TX_APP_MEM_POOL_SIZE) != TX_SUCCESS)
-  {
-    /* USER CODE BEGIN TX_Byte_Pool_Error */
-
-    /* USER CODE END TX_Byte_Pool_Error */
-  }
-  else
-  {
-    /* USER CODE BEGIN TX_Byte_Pool_Success */
-
-    /* USER CODE END TX_Byte_Pool_Success */
-
-    memory_ptr = (VOID *)&tx_app_byte_pool;
-    status = App_ThreadX_Init(memory_ptr);
-    if (status != TX_SUCCESS)
-    {
-      /* USER CODE BEGIN  App_ThreadX_Init_Error */
-      while(1)
-      {
-      }
-      /* USER CODE END  App_ThreadX_Init_Error */
-    }
-    /* USER CODE BEGIN  App_ThreadX_Init_Success */
-
-    /* USER CODE END  App_ThreadX_Init_Success */
-
-  }
-
-  if (tx_byte_pool_create(&nx_app_byte_pool, "Nx App memory pool", nx_byte_pool_buffer, NX_APP_MEM_POOL_SIZE) != TX_SUCCESS)
-  {
-    /* USER CODE BEGIN NX_Byte_Pool_Error */
-
-    /* USER CODE END NX_Byte_Pool_Error */
-  }
-  else
-  {
-    /* USER CODE BEGIN TX_Byte_Pool_Success */
-
-    /* USER CODE END TX_Byte_Pool_Success */
-
-    memory_ptr = (VOID *)&nx_app_byte_pool;
-    status = MX_NetXDuo_Init(memory_ptr);
-    if (status != NX_SUCCESS)
-    {
-      /* USER CODE BEGIN  MX_NetXDuo_Init_Error */
-      while(1)
-      {
-      }
-      /* USER CODE END  MX_NetXDuo_Init_Error */
-    }
-    /* USER CODE BEGIN  MX_NetXDuo_Init_Success */
-
-    /* USER CODE END MX_NetXDuo_Init_Success */
-
-  }
-#else
 /*
  * Using dynamic memory allocation requires to apply some changes to the linker file.
  * ThreadX needs to pass a pointer to the first free memory location in RAM to the tx_application_define() function,
@@ -165,6 +135,4 @@ VOID tx_application_define(VOID *first_unused_memory)
   /* USER CODE BEGIN DYNAMIC_MEM_ALLOC */
   (void)first_unused_memory;
   /* USER CODE END DYNAMIC_MEM_ALLOC */
-#endif
-
 }

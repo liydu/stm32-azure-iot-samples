@@ -74,13 +74,13 @@
 
 /* If defined, the link driver is able to specify extra capability, such as
    checksum offloading features. */
-/*
-#define NX_ENABLE_INTERFACE_CAPABILITY
-*/
+
+//#define NX_ENABLE_INTERFACE_CAPABILITY
+
 
 /* NX_PHYSICAL_HEADER Specifies the size in bytes of the physical header of
    the frame. */
-#define NX_PHYSICAL_HEADER                      44
+#define NX_PHYSICAL_HEADER 44
 
 /* NX_PHYSICAL_TRAILER specifies the size in bytes of the physical packet
    trailer and is typically used to reserve storage for things like Ethernet
@@ -140,9 +140,9 @@
    socket events, such as TCP connection and disconnect completion.
    These extended notify functions are mainly used by the BSD wrapper.
    The default is this feature is disabled.  */
-/*
+
 #define NX_ENABLE_EXTENDED_NOTIFY_SUPPORT
-*/
+
 
 /* Defined, NetX Duo is built with NAT process. By default this option is not
    defined. */
@@ -629,7 +629,7 @@
    pool from being starved. By default this symbol is not defined, thus there
    is no limit on the number of out of order packets being queued in the TCP
    socket. */
-#define NX_TCP_MAX_OUT_OF_ORDER_PACKETS 	    8
+#define NX_TCP_MAX_OUT_OF_ORDER_PACKETS 8
 
 /* Defined, enables the optional TCP keepalive timer. The default settings is
    not enabled. */
@@ -1482,9 +1482,9 @@
    before sending a new query. Removing these packets from previous DNS queries
    prevents the DNS Client socket queue from overflowing and dropping valid
    packets. */
-/*
+
 #define NX_DNS_CLIENT_CLEAR_QUEUE
-*/
+
 
 /* This enables the DNS Client to query on additional DNS record types in
    (e.g. CNAME, NS, MX, SOA, SRV and TXT). */
@@ -1539,15 +1539,15 @@
    is activated if the client connects to the broker with a keep-alive timer
    value set. The default value is TX_TIMER_TICKS_PER_SECOND, which is a
    one-second timer. */
-/*
+
 #define NXD_MQTT_PING_TIMEOUT_DELAY             (NX_IP_PERIODIC_RATE)
-*/
+
 
 /* Defines the time out in the TCP socket disconnect call when disconnecting
    from the MQTT server in timer ticks. The default value is NX_WAIT_FOREVER. */
-/*
-#define NXD_MQTT_SOCKET_TIMEOUT                 NX_WAIT_FOREVER
-*/
+
+#define NXD_MQTT_SOCKET_TIMEOUT                 0
+
 
 /* Defined, enable MQTT over cloud option. */
 
@@ -2249,9 +2249,9 @@
 
 /* The lowest level (highest numeric stratum level) SNTP Server stratum the
    Client will accept. The NetX Duo SNTP Client default is 2. */
-/*
-#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM       2
-*/
+
+#define NX_SNTP_CLIENT_MIN_SERVER_STRATUM       3
+
 
 /* The minimum time adjustment in milliseconds the Client will make to its
    local clock time. Time adjustments below this will be ignored. The NetX

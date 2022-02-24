@@ -31,7 +31,7 @@ extern "C"
 /* USER CODE BEGIN Includes */
 #include "main.h"
 
-#include "nx_azure_iot_json_writer.h"
+#include "nxd_dns.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -41,9 +41,6 @@ extern "C"
 
 /* Exported constants --------------------------------------------------------*/
 /* USER CODE BEGIN EC */
-
-
-
 #define IOT_HUB_HOSTNAME  "liya-iot.azure-devices.net"
 #define IOT_HUB_DEVICE_ID "u5"
 
@@ -62,7 +59,8 @@ extern "C"
 /* Exported functions prototypes ---------------------------------------------*/
 
 /* USER CODE BEGIN EFP */
-
+UINT Azure_Iot_Entry(
+    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time));
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/

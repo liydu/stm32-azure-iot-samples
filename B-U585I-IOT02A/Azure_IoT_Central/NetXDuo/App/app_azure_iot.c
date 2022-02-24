@@ -23,6 +23,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "app_netxduo.h"
+
 #include "nx_azure_iot_client.h"
 
 #include "nx_azure_iot_cert.h"
@@ -63,9 +65,6 @@ static int32_t telemetry_interval = 10;
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
 
-UINT azure_iot_entry(
-    NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time));
-
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 1 */
@@ -100,7 +99,7 @@ static VOID telemetry_callback(AZURE_IOT_CONTEXT* context)
   }
 }
 
-UINT azure_iot_entry(
+UINT Azure_Iot_Entry(
     NX_IP* ip_ptr, NX_PACKET_POOL* pool_ptr, NX_DNS* dns_ptr, UINT (*unix_time_callback)(ULONG* unix_time))
 {
   UINT ret = NX_SUCCESS;
@@ -139,7 +138,7 @@ UINT azure_iot_entry(
 #ifdef ENABLE_DPS
 
 #else
-  nx_azure_iot_client_hub_run(&nx_azure_iot_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID);
+  nx_azure_iot_client_hub_run(&nx_azure_iot_client, IOT_HUB_HOSTNAME, IOT_HUB_DEVICE_ID, MX_NetXDuo_Connect);
 #endif
 
   return NX_SUCCESS;

@@ -2,7 +2,15 @@
   "ExpandedNodes": [
     "",
     "\\B-U585I-IOT02A",
-    "\\B-U585I-IOT02A\\Azure_IoT_Central"
+    "\\B-U585I-IOT02A\\Azure_IoT_Central",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\Middlewares\\ST\\netxduo",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\Middlewares\\ST\\netxduo\\ports",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\Middlewares\\ST\\netxduo\\ports\\cortex_m33",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\Middlewares\\ST\\netxduo\\ports\\cortex_m33\\gnu",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\Middlewares\\ST\\threadx",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\Middlewares\\ST\\threadx\\common",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\NetXDuo"
   ],
+  "SelectedNode": "\\B-U585I-IOT02A\\Azure_IoT_Central\\NetXDuo\\App\\app_azure_iot.h",
   "PreviewInSolutionExplorer": false
 }
