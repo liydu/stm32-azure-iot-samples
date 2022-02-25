@@ -54,7 +54,7 @@ int32_t mxwifi_probe(void **ll_drv_context);
 #endif /* MX_WIFI_TX_BUFFER_NO_COPY */
 
 
-#define WIFI_SSID                                   "MSFTGUEST"
+#define WIFI_SSID                                   ""
 #define WIFI_PASSWORD                               ""
 
 /* DEBUG LOG */
