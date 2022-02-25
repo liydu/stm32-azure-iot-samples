@@ -32,7 +32,9 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "stm32u5xx_hal_def.h"
-#include "b_u585i_iot02a.h"  
+#include "b_u585i_iot02a.h"
+#include "b_u585i_iot02a_env_sensors.h"
+
 #include "mx_wifi_conf.h"
 /* USER CODE END Includes */
 

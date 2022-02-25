@@ -31,6 +31,8 @@
 #include "nx_azure_iot_ciphersuites.h"
 
 #include "nx_azure_iot_hub_client.h"
+
+#include "pnp_device_info.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,7 +49,9 @@ typedef enum TELEMETRY_STATE_ENUM
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define TELEMETRY_HUMIDITY "humidity"
+#define TELEMETRY_TEMPERATURE "temperature"
+#define TELEMETRY_HUMIDITY    "humidity"
+#define PROPERTY_LED_STATE    "led_state"
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -68,17 +72,68 @@ static int32_t telemetry_interval = 10;
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 1 */
+
+/* Parse PnP Device Information component JSON. */
+static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer)
+{
+  if (nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+          (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_NAME,
+          sizeof(DEVICE_INFO_MANUFACTURER_PROPERTY_NAME) - 1,
+          (UCHAR*)DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE,
+          sizeof(DEVICE_INFO_MANUFACTURER_PROPERTY_VALUE) - 1) ||
+      nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+          (UCHAR*)DEVICE_INFO_MODEL_PROPERTY_NAME,
+          sizeof(DEVICE_INFO_MODEL_PROPERTY_NAME) - 1,
+          (UCHAR*)DEVICE_INFO_MODEL_PROPERTY_VALUE,
+          sizeof(DEVICE_INFO_MODEL_PROPERTY_VALUE) - 1) ||
+      nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+          (UCHAR*)DEVICE_INFO_SW_VERSION_PROPERTY_NAME,
+          sizeof(DEVICE_INFO_SW_VERSION_PROPERTY_NAME) - 1,
+          (UCHAR*)DEVICE_INFO_SW_VERSION_PROPERTY_VALUE,
+          sizeof(DEVICE_INFO_SW_VERSION_PROPERTY_VALUE) - 1) ||
+      nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+          (UCHAR*)DEVICE_INFO_OS_NAME_PROPERTY_NAME,
+          sizeof(DEVICE_INFO_OS_NAME_PROPERTY_NAME) - 1,
+          (UCHAR*)DEVICE_INFO_OS_NAME_PROPERTY_VALUE,
+          sizeof(DEVICE_INFO_OS_NAME_PROPERTY_VALUE) - 1) ||
+      nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+          (UCHAR*)DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_NAME,
+          sizeof(DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_NAME) - 1,
+          (UCHAR*)DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE,
+          sizeof(DEVICE_INFO_PROCESSOR_ARCHITECTURE_PROPERTY_VALUE) - 1) ||
+      nx_azure_iot_json_writer_append_property_with_string_value(json_writer,
+          (UCHAR*)DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_NAME,
+          sizeof(DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_NAME) - 1,
+          (UCHAR*)DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE,
+          sizeof(DEVICE_INFO_PROCESSOR_MANUFACTURER_PROPERTY_VALUE) - 1) ||
+      nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+          (UCHAR*)DEVICE_INFO_TOTAL_STORAGE_PROPERTY_NAME,
+          sizeof(DEVICE_INFO_TOTAL_STORAGE_PROPERTY_NAME) - 1,
+          DEVICE_INFO_TOTAL_STORAGE_PROPERTY_VALUE,
+          2) ||
+      nx_azure_iot_json_writer_append_property_with_double_value(json_writer,
+          (UCHAR*)DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME,
+          sizeof(DEVICE_INFO_TOTAL_MEMORY_PROPERTY_NAME) - 1,
+          DEVICE_INFO_TOTAL_MEMORY_PROPERTY_VALUE,
+          2))
+  {
+    return NX_NOT_SUCCESSFUL;
+  }
+
+  return NX_AZURE_IOT_SUCCESS;
+}
+
 static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer)
 {
-  float temperature = 22.02;
+  float temperature;
 
-  //if (BSP_ENV_SENSOR_GetValue(0, ENV_TEMPERATURE, &temperature) != BSP_ERROR_NONE)
-  //{
-  //  printf("ERROR: BSP_ENV_SENSOR_GetValue\r\n");
-  //}
+  if (BSP_ENV_SENSOR_GetValue(0, ENV_TEMPERATURE, &temperature) != BSP_ERROR_NONE)
+  {
+    printf("ERROR: BSP_ENV_SENSOR_GetValue\r\n");
+  }
 
   if (nx_azure_iot_json_writer_append_property_with_double_value(
-          json_writer, (UCHAR*)TELEMETRY_HUMIDITY, sizeof(TELEMETRY_HUMIDITY) - 1, temperature, 2))
+          json_writer, (UCHAR*)TELEMETRY_TEMPERATURE, sizeof(TELEMETRY_TEMPERATURE) - 1, temperature, 2))
   {
     return NX_NOT_SUCCESSFUL;
   }
@@ -97,6 +152,16 @@ static VOID telemetry_callback(AZURE_IOT_CONTEXT* context)
     default:
       break;
   }
+}
+
+static VOID properties_complete_callback(AZURE_IOT_CONTEXT* context)
+{
+  /* Device twin processing is done, send out property updates */
+  nx_azure_iot_client_publish_properties(context, DEVICE_INFO_COMPONENT_NAME, append_device_info_properties);
+  nx_azure_iot_client_publish_bool_property(context, NULL, PROPERTY_LED_STATE, false);
+  //nx_azure_iot_client_publish_int_writable_property(context, NULL, TELEMETRY_INTERVAL_PROPERTY, telemetry_interval);
+
+  printf("\r\nStarting Main loop\r\n");
 }
 
 UINT Azure_Iot_Entry(
@@ -120,6 +185,7 @@ UINT Azure_Iot_Entry(
 
   /* Register the callbacks. */
   nx_azure_iot_client_register_timer_callback(&nx_azure_iot_client, telemetry_callback, telemetry_interval);
+  nx_azure_iot_client_register_properties_complete_callback(&nx_azure_iot_client, properties_complete_callback);
 
   /* Set up authentication. */
 #ifdef ENABLE_X509

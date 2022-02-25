@@ -205,6 +205,36 @@
 			<locationURI>PARENT-1-PROJECT_LOC/Drivers/BSP/B-U585I-IOT02A/b_u585i_iot02a.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/BSP/B-U585I-IOT02A/b_u585i_iot02a_bus.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/BSP/B-U585I-IOT02A/b_u585i_iot02a_bus.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/B-U585I-IOT02A/b_u585i_iot02a_env_sensors.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/BSP/B-U585I-IOT02A/b_u585i_iot02a_env_sensors.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/hts221.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/BSP/Components/hts221/hts221.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/hts221_reg.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/BSP/Components/hts221/hts221_reg.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps22hh.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/BSP/Components/lps22hh/lps22hh.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/BSP/Components/lps22hh_reg.c</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Drivers/BSP/Components/lps22hh/lps22hh_reg.c</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/Embedded C SDK/azure/core</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>

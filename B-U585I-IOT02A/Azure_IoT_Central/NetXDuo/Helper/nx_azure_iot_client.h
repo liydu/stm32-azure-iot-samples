@@ -142,12 +142,23 @@ struct AZURE_IOT_CONTEXT_STRUCT
 /* Periodic telemetry sending. */
 UINT nx_azure_iot_client_periodic_interval_set(AZURE_IOT_CONTEXT* context, INT interval);
 
+UINT nx_azure_iot_client_register_properties_complete_callback(
+    AZURE_IOT_CONTEXT* context, func_ptr_properties_complete callback);
+
 UINT nx_azure_iot_client_register_timer_callback(
     AZURE_IOT_CONTEXT* context, func_ptr_timer callback, int32_t interval);
 
+/* Actual PnP parsing functions. */
 UINT nx_azure_iot_client_publish_telemetry(AZURE_IOT_CONTEXT* context,
     CHAR*                                                     component_name_ptr,
     UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_writer_ptr));
+
+UINT nx_azure_iot_client_publish_properties(AZURE_IOT_CONTEXT* context,
+    CHAR*                                                      component_name_ptr,
+    UINT (*append_properties)(NX_AZURE_IOT_JSON_WRITER* json_writer_ptr));
+
+UINT nx_azure_iot_client_publish_bool_property(
+    AZURE_IOT_CONTEXT* context, CHAR* component_name_ptr, CHAR* property_ptr, bool value);
 
 /* Set authentication. */
 UINT nx_azure_iot_client_sas_set(AZURE_IOT_CONTEXT* context, CHAR* device_sas_key);

@@ -50,11 +50,11 @@ extern "C"
 #define ENABLE_DPS
 
 /* DPS configurations. */
-#define IOT_DPS_ID_SCOPE        "0ne00433CCB"
-#define IOT_DPS_REGISTRATION_ID "u5"
+#define IOT_DPS_ID_SCOPE        ""
+#define IOT_DPS_REGISTRATION_ID ""
 
 /* SAS Token. */
-#define IOT_DEVICE_SAS_KEY "ub1og7aLbV1ewdJV9C0Oyi2uFR5LB8JOHteO0439qoQ="
+#define IOT_DEVICE_SAS_KEY ""
 
 /* PnP Configurations*/
 #define DEVICE_MODEL_ID "dtmi:azurertos:devkit:gsgstml4s5;2"
