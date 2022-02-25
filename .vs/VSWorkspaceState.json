@@ -3,9 +3,13 @@
     "",
     "\\B-U585I-IOT02A",
     "\\B-U585I-IOT02A\\Azure_IoT_Central",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\Drivers\\BSP",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\Drivers\\BSP\\Components",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\Drivers\\BSP\\Components\\Common",
+    "\\B-U585I-IOT02A\\Azure_IoT_Central\\Model",
     "\\B-U585I-IOT02A\\Azure_IoT_Central\\NetXDuo\\App",
     "\\B-U585I-IOT02A\\Azure_IoT_Central\\NetXDuo\\Helper"
   ],
-  "SelectedNode": "\\B-U585I-IOT02A\\Azure_IoT_Central\\Model",
+  "SelectedNode": "\\B-U585I-IOT02A\\Azure_IoT_Central\\Model\\stm32-b-u585i-iot02a.json",
   "PreviewInSolutionExplorer": false
 }

@@ -17,9 +17,10 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include "b_u585i_iot02a_env_sensors.h"
+
 #include "main.h"
 #include "app_threadx.h"
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -63,6 +64,7 @@ static void MX_ICACHE_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_RNG_Init(void);
+static void MEM_Sensors_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -138,8 +140,9 @@ int main(void)
   MX_SPI2_Init();
   MX_USART1_UART_Init();
   MX_RNG_Init();
-  /* USER CODE BEGIN 2 */
 
+  /* USER CODE BEGIN 2 */
+  MEM_Sensors_Init();
   /* USER CODE END 2 */
 
   MX_ThreadX_Init();
@@ -434,6 +437,24 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI15_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI15_IRQn);
 
+}
+
+/**
+ * @brief  Initialize sensors
+ * @param  None
+ * @retval None
+ */
+static void MEM_Sensors_Init(void)
+{
+  if (BSP_ENV_SENSOR_Init(0, ENV_TEMPERATURE) != BSP_ERROR_NONE)
+  {
+    printf("ERROR: BSP_ENV_SENSOR_Init\r\n");
+  }
+
+  if (BSP_ENV_SENSOR_Enable(0, ENV_TEMPERATURE) != BSP_ERROR_NONE)
+  {
+    printf("ERROR: BSP_ENV_SENSOR_Enable\r\n");
+  }
 }
 
 /* USER CODE BEGIN 4 */
