@@ -53,26 +53,26 @@
 									<listOptionValue builtIn="false" value="../../AZURE_RTOS/App"/>
 									<listOptionValue builtIn="false" value="../../Drivers/STM32U5xx_HAL_Driver/Inc"/>
 									<listOptionValue builtIn="false" value="../../Drivers/STM32U5xx_HAL_Driver/Inc/Legacy"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/addons/dhcp"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/threadx/common/inc"/>
 									<listOptionValue builtIn="false" value="../../Drivers/CMSIS/Device/ST/STM32U5xx/Include"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/ports/cortex_m33/gnu/inc"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/addons/dns"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/addons/mqtt"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/addons/sntp"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/addons/cloud"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/addons/azure_iot"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/inc"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/common/inc"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/nx_secure/inc"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/nx_secure/ports"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/crypto_libraries/inc"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/crypto_libraries/ports/cortex_m4/gnu/inc"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/threadx/ports/cortex_m33/gnu/inc"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/addons/dhcp"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/threadx/common/inc"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/ports/cortex_m33/gnu/inc"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/addons/dns"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/addons/mqtt"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/addons/sntp"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/addons/cloud"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/addons/azure_iot"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/addons/azure_iot/azure-sdk-for-c/sdk/inc"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/common/inc"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/nx_secure/inc"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/nx_secure/ports"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/crypto_libraries/inc"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/crypto_libraries/ports/cortex_m4/gnu/inc"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/threadx/ports/cortex_m33/gnu/inc"/>
+									<listOptionValue builtIn="false" value="../../../../Common/Middlewares/ST/netxduo/common/drivers/wifi/mxchip"/>
 									<listOptionValue builtIn="false" value="../../Drivers/CMSIS/Include"/>
 									<listOptionValue builtIn="false" value="../../Drivers/BSP/Components/mx_wifi"/>
 									<listOptionValue builtIn="false" value="../../Drivers/BSP/Components/Common"/>
-									<listOptionValue builtIn="false" value="../../Middlewares/ST/netxduo/common/drivers/wifi/mxchip"/>
 									<listOptionValue builtIn="false" value="../../Drivers/BSP/B-U585I-IOT02A"/>
 									<listOptionValue builtIn="false" value="../../NetXDuo/Target"/>
 								</option>
