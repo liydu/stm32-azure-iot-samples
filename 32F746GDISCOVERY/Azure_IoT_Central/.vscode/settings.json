@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "app_netxduo.h": "c",
+        "app_azure_rtos.h": "c",
+        "app_azure_rtos_config.h": "c"
+    }
+}
