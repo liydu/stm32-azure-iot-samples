@@ -36,7 +36,7 @@
 #include "nxd_dns.h"
 #include "nx_secure_tls_api.h"
 
-#include "nx_driver_emw3080.h"
+#include "nx_stm32_eth_driver.h"
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

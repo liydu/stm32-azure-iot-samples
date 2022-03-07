@@ -125,12 +125,12 @@ static UINT append_device_info_properties(NX_AZURE_IOT_JSON_WRITER* json_writer)
 
 static UINT append_device_telemetry(NX_AZURE_IOT_JSON_WRITER* json_writer)
 {
-  float temperature;
+  float temperature = 22.02;
 
-  if (BSP_ENV_SENSOR_GetValue(0, ENV_TEMPERATURE, &temperature) != BSP_ERROR_NONE)
-  {
-    printf("ERROR: BSP_ENV_SENSOR_GetValue\r\n");
-  }
+  //if (BSP_ENV_SENSOR_GetValue(0, ENV_TEMPERATURE, &temperature) != BSP_ERROR_NONE)
+  //{
+  //  printf("ERROR: BSP_ENV_SENSOR_GetValue\r\n");
+  //}
 
   if (nx_azure_iot_json_writer_append_property_with_double_value(
           json_writer, (UCHAR*)TELEMETRY_TEMPERATURE, sizeof(TELEMETRY_TEMPERATURE) - 1, temperature, 2))

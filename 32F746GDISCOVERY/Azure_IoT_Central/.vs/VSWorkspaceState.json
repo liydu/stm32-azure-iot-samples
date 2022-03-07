@@ -1,16 +1,16 @@
 {
   "ExpandedNodes": [
     "",
-    "\\AZURE_RTOS",
     "\\Core",
-    "\\Core\\Src",
+    "\\Core\\Inc",
+    "\\NetXDuo",
+    "\\NetXDuo\\App",
     "\\STM32CubeIDE",
     "\\STM32CubeIDE\\Application",
     "\\STM32CubeIDE\\Application\\User",
     "\\STM32CubeIDE\\Application\\User\\NetXDuo",
-    "\\STM32CubeIDE\\Application\\User\\NetXDuo\\App",
-    "\\STM32CubeIDE\\Application\\User\\NetXDuo\\Helper"
+    "\\STM32CubeIDE\\Application\\User\\NetXDuo\\App"
   ],
-  "SelectedNode": "\\NetXDuo\\Helper\\nx_azure_iot_client.c",
+  "SelectedNode": "\\STM32CubeIDE\\Application\\User\\Startup\\startup_stm32f746nghx.s",
   "PreviewInSolutionExplorer": false
 }

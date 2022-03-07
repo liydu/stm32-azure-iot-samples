@@ -364,7 +364,7 @@ UINT MX_NetXDuo_Init()
       NULL_ADDRESS,
       NULL_ADDRESS,
       &AppPool,
-      nx_driver_emw3080_entry,
+      nx_stm32_eth_driver,
       nx_ip_stack,
       NX_IP_STACK_SIZE,
       NX_IP_STACK_PRIORITY);
