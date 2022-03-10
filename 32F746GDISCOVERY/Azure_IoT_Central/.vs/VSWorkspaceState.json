@@ -1,0 +1,16 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\Core",
+    "\\Core\\Inc",
+    "\\NetXDuo",
+    "\\NetXDuo\\App",
+    "\\STM32CubeIDE",
+    "\\STM32CubeIDE\\Application",
+    "\\STM32CubeIDE\\Application\\User",
+    "\\STM32CubeIDE\\Application\\User\\NetXDuo",
+    "\\STM32CubeIDE\\Application\\User\\NetXDuo\\App"
+  ],
+  "SelectedNode": "\\STM32CubeIDE\\Application\\User\\Startup\\startup_stm32f746nghx.s",
+  "PreviewInSolutionExplorer": false
+}
