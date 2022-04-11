@@ -5777,37 +5777,47 @@
 		<link>
 			<name>Middlewares/ThreadX/Ports/tx_thread_context_restore.S</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m33/gnu/src/tx_thread_context_restore.S</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_thread_context_restore.S</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ThreadX/Ports/tx_thread_context_save.S</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m33/gnu/src/tx_thread_context_save.S</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_thread_context_save.S</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ThreadX/Ports/tx_thread_interrupt_control.S</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m33/gnu/src/tx_thread_interrupt_control.S</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_thread_interrupt_control.S</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ThreadX/Ports/tx_thread_interrupt_disable.S</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_thread_interrupt_disable.S</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/ThreadX/Ports/tx_thread_interrupt_restore.S</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_thread_interrupt_restore.S</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ThreadX/Ports/tx_thread_schedule.S</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m33/gnu/src/tx_thread_schedule.S</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_thread_schedule.S</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ThreadX/Ports/tx_thread_stack_build.S</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m33/gnu/src/tx_thread_stack_build.S</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_thread_stack_build.S</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ThreadX/Ports/tx_thread_system_return.S</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m33/gnu/src/tx_thread_system_return.S</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_thread_system_return.S</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/ThreadX/Ports/tx_timer_interrupt.S</name>
 			<type>1</type>
-			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m33/gnu/src/tx_timer_interrupt.S</locationURI>
+			<locationURI>PARENT-3-PROJECT_LOC/Common/Middlewares/ST/threadx/ports/cortex_m7/gnu/src/tx_timer_interrupt.S</locationURI>
 		</link>
 		<link>
 			<name>Application/User/AZURE_RTOS/App/app_azure_rtos.c</name>

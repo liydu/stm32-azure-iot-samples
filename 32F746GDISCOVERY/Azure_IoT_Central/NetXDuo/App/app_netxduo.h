@@ -60,7 +60,7 @@
 #define NX_IP_STACK_SIZE     2048
 #define NX_IP_STACK_PRIORITY 1
 
-#define NX_PACKET_SIZE      1544
+#define NX_PACKET_SIZE      1536
 #define NX_PACKET_COUNT     60
 #define NX_PACKET_POOL_SIZE ((NX_PACKET_SIZE + sizeof(NX_PACKET)) * NX_PACKET_COUNT)
 
