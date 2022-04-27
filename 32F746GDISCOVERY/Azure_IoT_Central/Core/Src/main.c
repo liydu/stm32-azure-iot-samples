@@ -24,14 +24,6 @@
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-#if defined ( __GNUC__) && !defined(__clang__)
-/* With GCC, small printf (option LD Linker->Libraries->Small printf
-   set to 'Yes') calls __io_putchar() */
-#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else
-#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#endif /* __GNUC__ */
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -62,6 +54,14 @@ static void MX_RNG_Init(void);
 //static void MEM_Sensors_Init(void);
 /* USER CODE BEGIN PFP */
 
+/* USER CODE BEGIN PTD */
+#if defined (__GNUC__) && !defined(__clang__)
+/* With GCC, small printf (option LD Linker->Libraries->Small printf
+   set to 'Yes') calls __io_putchar() */
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -162,6 +162,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //MEM_Sensors_Init();
   /* USER CODE END 2 */
+  printf("try it");
 
   MX_ThreadX_Init();
   /* Infinite loop */
@@ -390,7 +391,7 @@ PUTCHAR_PROTOTYPE
 {
   /* Place your implementation of fputc here */
   /* e.g. write a character to the USART1 and Loop until the end of transmission */
-  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, 0xFFFF);
+  HAL_UART_Transmit(&huart1, (uint8_t *)&ch, 1, HAL_MAX_DELAY);
 
   return ch;
 }

@@ -28,7 +28,12 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "stdio.h"
+#include "stdlib.h"
 #include "stm32f7xx_hal.h"
+
+//#ifdef DEBUG
+//__HAL_DBGMCU_FREEZE_TIM6();
+//#endif
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
