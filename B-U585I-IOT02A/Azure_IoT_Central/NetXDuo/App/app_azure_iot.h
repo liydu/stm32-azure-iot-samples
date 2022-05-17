@@ -57,7 +57,7 @@ extern "C"
 #define IOT_DEVICE_SAS_KEY ""
 
 /* PnP Configurations*/
-#define DEVICE_MODEL_ID "dtmi:azurertos:devkit:gsgstml4s5;2"
+#define DEVICE_MODEL_ID "dtmi:stmicroelectronics:b_u585i_iot02a:standard_if;1"
 
 /* USER CODE END EC */
 
